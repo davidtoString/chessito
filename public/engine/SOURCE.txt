@@ -1,0 +1,5 @@
+Stockfish.js 18.0.8, single-threaded Lite build, GPL-3.0.
+Corresponding source and build instructions:
+https://github.com/nmrugg/stockfish.js/tree/93c994592dcf3b4b21052ab925e9b534df9c0918
+https://github.com/nmrugg/stockfish.js/archive/93c994592dcf3b4b21052ab925e9b534df9c0918.tar.gz
+Engine binaries are unchanged. The loader and WASM are renamed to stockfish.js and stockfish.wasm.
