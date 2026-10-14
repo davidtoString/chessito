@@ -1,0 +1,10 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {mkdtempSync,mkdirSync,writeFileSync,existsSync} from 'node:fs';import {tmpdir} from 'node:os';import path from 'node:path';import {DatabaseSync,backup} from 'node:sqlite';
+import {initializeDatabase,d1Adapter} from '../docker/database.mjs';
+test('production storage migrates old games and encrypted keys and keeps legacy files',async()=>{
+ const root=mkdtempSync(path.join(tmpdir(),'chessito-storage-'));const legacyDir=path.join(root,'state','v3','d1','miniflare-D1DatabaseObject');mkdirSync(legacyDir,{recursive:true});const oldFile=path.join(legacyDir,'original.sqlite');
+ const old=new DatabaseSync(oldFile);old.exec('CREATE TABLE games(user_id TEXT,id TEXT,data TEXT,updated_at TEXT,PRIMARY KEY(user_id,id));CREATE TABLE preferences(user_id TEXT PRIMARY KEY,data TEXT,encrypted_key TEXT);');old.prepare('INSERT INTO games VALUES(?,?,?,?)').run('docker-owner','existing','{"pgn":"1. e4 *"}','2026-10-12');old.prepare('INSERT INTO preferences VALUES(?,?,?)').run('docker-owner','{"provider":"gemini"}','existing-encrypted-value');old.close();
+ const db=initializeDatabase(root);assert.equal(db.prepare('SELECT id FROM games').get().id,'existing');assert.equal(db.prepare('SELECT encrypted_key FROM preferences').get().encrypted_key,'existing-encrypted-value');assert.ok(existsSync(oldFile));
+ const adapter=d1Adapter(db);const result=await adapter.prepare('UPDATE games SET updated_at=? WHERE id=?').bind('new','existing').run();assert.equal(result.meta.changes,1);assert.deepEqual(await adapter.prepare('SELECT id,updated_at FROM games').raw(),[['existing','new']]);
+ await backup(db,path.join(root,'backup.sqlite'));db.close();const again=initializeDatabase(root);assert.equal(again.prepare('SELECT count(*) AS n FROM games').get().n,1);assert.equal(again.prepare('SELECT updated_at FROM games').get().updated_at,'new');again.close();
+ const copy=new DatabaseSync(path.join(root,'backup.sqlite'),{readOnly:true});assert.equal(copy.prepare('SELECT updated_at FROM games').get().updated_at,'new');copy.close();
+});

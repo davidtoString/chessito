@@ -1,0 +1,53 @@
+services:
+  chessito:
+    build: .
+    ports:
+      - "${CHESSITO_BIND_ADDRESS:-127.0.0.1}:${CHESSITO_PORT:-3000}:3000"
+    environment:
+      CHESSITO_USERNAME: "${CHESSITO_USERNAME:-david}"
+      CHESSITO_PASSWORD: "${CHESSITO_PASSWORD:?Run node docker/setup.mjs first}"
+      CHESSITO_PUBLIC_ORIGIN: "${CHESSITO_PUBLIC_ORIGIN:-}"
+      CHESSITO_ENGINE_SERVICE: "http://engines:8000"
+    depends_on:
+      engines:
+        condition: service_healthy
+    volumes:
+      - chessito_data:/data
+    restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    mem_limit: 1g
+    cpus: 2
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+  engines:
+    build:
+      context: .
+      dockerfile: engines/Dockerfile
+    restart: unless-stopped
+    init: true
+    cpus: 2
+    mem_limit: 2g
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+volumes:
+  chessito_data:

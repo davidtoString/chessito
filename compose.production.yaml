@@ -1,0 +1,30 @@
+services:
+  chessito:
+    ports: !reset []
+    environment:
+      CHESSITO_PUBLIC_ORIGIN: "https://${CHESSITO_DOMAIN:?Set CHESSITO_DOMAIN to your DNS name}"
+  proxy:
+    image: caddy:2.10-alpine
+    environment:
+      CHESSITO_DOMAIN: "${CHESSITO_DOMAIN:?Set CHESSITO_DOMAIN}"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      chessito:
+        condition: service_healthy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+volumes:
+  caddy_data:
+  caddy_config:

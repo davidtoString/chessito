@@ -1,0 +1,8 @@
+# Build the VPS images from a Git checkout instead of loading a release bundle.
+services:
+  chessito:
+    build: .
+  engines:
+    build:
+      context: .
+      dockerfile: engines/Dockerfile

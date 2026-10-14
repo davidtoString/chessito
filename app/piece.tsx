@@ -1,9 +1,11 @@
+'use client';
+// Original flat Staunton silhouettes, with crisp outlines at phone sizes.
 const shapes:Record<string,React.ReactNode>={
- p:<><circle cx="24" cy="13" r="6"/><path d="M19 19h10l-2 8 6 9H15l6-9z"/><path d="M14 36h20l2 6H12z"/></>,
- r:<><path d="M13 7h6v6h4V7h4v6h4V7h6v13l-5 4 1 12H15l1-12-3-4z"/><path d="M13 36h22l2 6H11zM17 21h14"/></>,
- n:<><path d="M13 35c1-9 13-12 15-19l-9 5-5 7-7-4 8-13 7-3 5-5 1 6c10 2 12 14 9 26z"/><circle cx="21" cy="14" r="1.2" fill="currentColor"/><path d="M12 36h25l2 6H10z"/></>,
- b:<><path d="M24 5c-3 5-11 9-10 15 0 5 5 8 10 8s10-3 10-8c1-6-7-10-10-15zM27 12l-6 9M20 28h8l4 8H16z"/><path d="M13 36h22l3 6H10z"/></>,
- q:<><path d="M10 14l5 19h18l5-19-10 10-4-13-4 13zM15 33h18v4H15zM12 37h24l2 5H10z"/><circle cx="9" cy="11" r="3"/><circle cx="24" cy="8" r="3"/><circle cx="39" cy="11" r="3"/></>,
- k:<><path d="M24 3v12M19 8h10" fill="none"/><path d="M24 18c-7-9-17-2-12 6l6 9h12l6-9c5-8-5-15-12-6zM17 33h14l2 4H15zM13 37h22l2 5H11z"/></>,
+ p:<><circle cx="32" cy="16" r="8"/><path d="M27 24h10l-2 7c0 5 4 9 7 13H22c3-4 7-8 7-13z"/><path d="M25 25h14" fill="none"/></>,
+ r:<><path d="M18 9h7v8h4V9h6v8h4V9h7v17l-6 5 1 13H23l1-13-6-5z"/><path d="M22 26h20M25 32h14" fill="none"/></>,
+ n:<><path d="M19 44c0-8 6-13 13-18l-9 3-7 6-7-5 12-16 10-3 6-6 1 8c11 4 14 16 9 31z"/><path d="M37 18c5 4 7 9 6 17M17 29l7 2" fill="none"/><circle cx="28" cy="20" r="2" fill="currentColor" stroke="none"/></>,
+ b:<><circle cx="32" cy="8" r="3"/><path d="M32 12c-5 5-13 10-13 17 0 6 6 10 13 10s13-4 13-10c0-7-8-12-13-17z"/><path d="M36 20l-9 11" fill="none"/><path d="M27 39h10l4 5H23z"/></>,
+ q:<><path d="M14 19l8 25h20l8-25-12 12-6-17-6 17z"/><circle cx="13" cy="15" r="4"/><circle cx="32" cy="10" r="4"/><circle cx="51" cy="15" r="4"/><path d="M23 36h18M23 41h18" fill="none"/></>,
+ k:<><path d="M32 5v13M26 11h12" fill="none" strokeWidth="3.5"/><path d="M32 23c-9-11-23-4-18 7l9 14h18l9-14c5-11-9-18-18-7z"/><path d="M32 23v14M23 38h18" fill="none"/></>,
 };
-export default function Piece({type,color}:{type:string;color:string}){return <svg aria-hidden="true" viewBox="0 0 48 48" className={`piece ${color}`} fill={color==='w'?'#fff9eb':'#263c33'} stroke={color==='w'?'#526357':'#13251e'} strokeWidth="1.7" strokeLinejoin="round" strokeLinecap="round">{shapes[type]}</svg>;}
+export default function Piece({type,color}:{type:string;color:string}){const white=color==='w';return <svg aria-hidden="true" viewBox="0 0 64 64" className={`piece ${color}`} fill={white?'#fffcf0':'#24372f'} stroke={white?'#34463b':'#e9e4d5'} color={white?'#34463b':'#e9e4d5'} strokeWidth={white?2:1.5} strokeLinejoin="round" strokeLinecap="round">{shapes[type]}<path d="M22 44h20l3 5H19z"/><path d="M19 49h26l3 7H16z"/><path d="M22 52h20" fill="none" opacity=".45"/></svg>;}

@@ -1,0 +1,7 @@
+'use client';
+import {ThemeProvider,useTheme} from 'next-themes';
+import {useEffect,useState} from 'react';
+import {Sun,Moon,Monitor} from 'lucide-react';
+export function AppearanceProvider({children,nonce}:{children:React.ReactNode;nonce?:string}){return <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem nonce={nonce} storageKey="chessito-theme">{children}</ThemeProvider>;}
+export function ThemeToggle(){const {resolvedTheme,setTheme}=useTheme();const [mounted,setMounted]=useState(false);useEffect(()=>setMounted(true),[]);const dark=mounted&&resolvedTheme==='dark';return <button className="theme-toggle" aria-label={dark?'Switch to light mode':'Switch to dark mode'} title={dark?'Switch to light mode':'Switch to dark mode'} onClick={()=>setTheme(dark?'light':'dark')}>{dark?<Sun size={19}/>:<Moon size={19}/>}</button>;}
+export function AppearanceSettings(){const {theme,setTheme}=useTheme();const [mounted,setMounted]=useState(false);useEffect(()=>setMounted(true),[]);return <section className="panel appearance-settings"><h2>Appearance</h2><p>Choose a theme. Your preference is remembered on this device.</p><div className="appearance-options">{[['light','Light',Sun],['dark','Dark',Moon],['system','System',Monitor]].map(([id,label,Icon])=>{const Component=Icon as typeof Sun;return <button className={mounted&&theme===id?'chosen':''} key={id as string} aria-pressed={mounted&&theme===id} onClick={()=>setTheme(id as string)}><Component size={19}/>{label as string}</button>;})}</div></section>;}

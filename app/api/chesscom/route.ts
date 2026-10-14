@@ -1,0 +1,13 @@
+import {identity,json,failure} from '../../../lib/server';
+let active=false;
+export async function GET(req:Request){try{
+ await identity(req);const params=new URL(req.url).searchParams,username=(params.get('username')||'').trim().toLowerCase();if(!/^[a-z0-9_-]{1,50}$/.test(username))return json({error:'Enter a valid Chess.com username.'},400);
+ const year=params.get('year'),month=params.get('month');if((year||month)&&(!year||!month||!/^20\d{2}$/.test(year)||!/^(0[1-9]|1[0-2])$/.test(month)))return json({error:'Choose a valid archive month.'},400);
+ if(active)return json({error:'A Chess.com request is already running. Try again shortly.'},429);active=true;
+ try{const path=year?`/${year}/${month}`:'/archives';const response=await fetch(`https://api.chess.com/pub/player/${encodeURIComponent(username)}/games${path}`,{headers:{'User-Agent':`Chessito/1.0 (private chess study; username: ${username})`},signal:AbortSignal.timeout(35000),redirect:'error'});
+  if(!response.ok)return json({error:response.status===404?'That username or archive was not found on Chess.com.':response.status===429?'Chess.com rate limited this request. Wait a minute, then retry.':`Chess.com returned HTTP ${response.status}. Try again later or upload an exported PGN.`},response.status===404?404:502);
+  const reader=response.body!.getReader();const chunks:Uint8Array[]=[];let size=0;for(;;){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>40*1024*1024){await reader.cancel();return json({error:'This archive exceeds 40 MB. Download its PGN from Chess.com and use file import.'},413);}chunks.push(value);}const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}const data=JSON.parse(new TextDecoder().decode(bytes));
+  if(!year){const archives=(data.archives||[]).flatMap((url:unknown)=>{if(typeof url!=='string')return [];const match=url.match(/^https:\/\/api\.chess\.com\/pub\/player\/([a-z0-9_-]+)\/games\/(20\d{2})\/(0[1-9]|1[0-2])$/i);return match&&match[1].toLowerCase()===username?[{year:match[2],month:match[3],id:match[2]+'-'+match[3]}]:[];}).reverse();return json({username,archives});}
+  const source=Array.isArray(data.games)?data.games:[];const games=source.filter((game:{rules?:string;pgn?:string})=>game.rules==='chess'&&typeof game.pgn==='string').map((game:{pgn:string})=>({pgn:game.pgn}));return json({games,skipped:source.length-games.length});
+ }finally{active=false;}
+}catch(e){if(e instanceof Error&&(e.name==='TimeoutError'||e.name==='TypeError'))return json({error:'Could not reach Chess.com. Retry later or upload an exported PGN.'},502);return failure(e);}}

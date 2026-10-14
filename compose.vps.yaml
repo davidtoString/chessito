@@ -1,0 +1,61 @@
+# Existing HTTPS proxy: no new listener on ports 80, 443, or 3000.
+services:
+  chessito:
+    image: "chessito-app:${CHESSITO_RELEASE:-local}"
+    build: .
+    environment:
+      CHESSITO_USERNAME: "${CHESSITO_USERNAME:-david}"
+      CHESSITO_PASSWORD: "${CHESSITO_PASSWORD:?Run bash ops.sh init first}"
+      CHESSITO_PUBLIC_ORIGIN: "https://${CHESSITO_DOMAIN:?Set the public hostname}"
+      CHESSITO_ENGINE_SERVICE: "http://engines:8000"
+    depends_on:
+      engines:
+        condition: service_healthy
+    volumes:
+      - chessito_data:/data
+    networks:
+      default:
+      proxy:
+        aliases:
+          - "${CHESSITO_PROXY_ALIAS:-chessito-web}"
+    restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    mem_limit: 1g
+    cpus: 2
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+  engines:
+    image: "chessito-engines:${CHESSITO_RELEASE:-local}"
+    build:
+      context: .
+      dockerfile: engines/Dockerfile
+    restart: unless-stopped
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    mem_limit: 2g
+    cpus: 2
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+networks:
+  proxy:
+    external: true
+    name: "${CHESSITO_PROXY_NETWORK:?Use the existing HTTPS proxy Docker network}"
+volumes:
+  chessito_data:

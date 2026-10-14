@@ -27,7 +27,7 @@ export class Engine {
    this.listener=(line)=>{
     const score=line.match(/\bscore (cp|mate) (-?\d+)/);const d=line.match(/\bdepth (\d+)/);
     if(score&&!/upperbound|lowerbound/.test(line)){const n=Number(score[2]);result={...result,cp:(score[1]==='mate'?(n<0?-10000:10000):n)*(white?1:-1),mate:score[1]==='mate'?n*(white?1:-1):undefined,depth:d?Number(d[1]):result.depth};}
-    if(line.startsWith('bestmove ')){clearTimeout(timer);this.listener=null;this.failed=null;result.best=line.split(' ')[1];if(skill===20)this.cache.set(key,result);resolve(result);}
+    if(line.startsWith('bestmove ')){clearTimeout(timer);this.listener=null;this.failed=null;result.best=line.split(' ')[1];if(skill===20){this.cache.set(key,result);if(this.cache.size>2048)this.cache.delete(this.cache.keys().next().value!);}resolve(result);}
    };
    this.worker!.postMessage(`setoption name Skill Level value ${skill}`);
    this.worker!.postMessage(`position fen ${fen}`);

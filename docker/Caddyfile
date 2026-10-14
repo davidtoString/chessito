@@ -1,0 +1,4 @@
+{$CHESSITO_DOMAIN} {
+    encode zstd gzip
+    reverse_proxy chessito:3000
+}
