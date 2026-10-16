@@ -23,5 +23,7 @@ test('soundFor picks the right sound', () => {
  assert.equal(soundFor({ san: 'Nxe5', flags: 'c', captured: 'p' }, false), 'capture');
  assert.equal(soundFor({ san: 'O-O', flags: 'k' }, false), 'castle');
  assert.equal(soundFor({ san: 'Qh5+', flags: 'n' }, false), 'check');
- assert.equal(soundFor({ san: 'Qxf7#', flags: 'c', captured: 'p' }, true), 'end');
+ assert.equal(soundFor({ san: 'Qxf7#', flags: 'c', captured: 'p' }, true), 'checkmate');
+ assert.equal(soundFor({ san: 'Qg6', flags: 'n' }, true), 'draw');
+ assert.equal(soundFor({ san: 'e8=Q', flags: 'np', promotion: 'q' }, false), 'promote');
 });

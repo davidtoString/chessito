@@ -14,7 +14,7 @@ import Learn,{emptyLearn,type LearnProgress} from './learn';
 import PuzzlesRoom from './puzzles-room';
 import {defaultPuzzleStats,type PuzzleStats} from '../lib/puzzles';
 import {loadOpenings,isBook,openingFor,type Openings} from '../lib/openings';
-import {play,soundFor,soundOn,setSound} from '../lib/sound';
+import {play,playResult,preload,soundFor,soundOn,setSound} from '../lib/sound';
 import PracticeRoom from './practice-room';
 import {ThemeToggle,AppearanceSettings} from './appearance';
 import BulkImport,{UsernameSettings} from './bulk-import';
@@ -60,6 +60,7 @@ export default function ChessApp(){
  function updateClock(fn:(c:{w:number;b:number}|null)=>{w:number;b:number}|null){const next=fn(clockRef.current);clockRef.current=next;setClock(next);}
  function bump(color:'w'|'b'){const inc=recordRef.current?.timeControl?.inc;if(inc)updateClock(c=>c&&{...c,[color]:c[color]+inc*1000});}
  useEffect(()=>setSoundEnabled(soundOn()),[]);
+ useEffect(()=>{void preload();},[]);
  useEffect(()=>{void loadOpenings().then(setOpenings).catch(()=>{});},[]);
  function updateRecord(r:GameRecord){recordRef.current=r;setRecord(r);}
  function report(e:unknown){setError(e instanceof Error?e.message:'Something went wrong. Please try again.');}
@@ -105,7 +106,7 @@ export default function ChessApp(){
   if(busy||mode!=='play'||recordRef.current?.result!=='*')return;if(!recordRef.current){setShowNew(true);return;}
   if(game.current.turn()!==recordRef.current.color)return;
   const seq=token.current;setBusy('Reviewing your move');setError('');setAiText('');
-  try{const before=await engine.current!.evaluate(game.current.fen());if(seq!==token.current)return;const m=game.current.move({from,to,promotion:promote});play(soundFor(m,game.current.isGameOver()));bump(m.color);refresh();commit();await assess(m,before,seq);}catch(e){report(e);}finally{if(seq===token.current)setBusy('');}
+  try{const before=await engine.current!.evaluate(game.current.fen());if(seq!==token.current)return;const m=game.current.move({from,to,promotion:promote});play(soundFor(m,game.current.isGameOver()));if(game.current.isCheckmate())playResult('win');bump(m.color);refresh();commit();await assess(m,before,seq);}catch(e){report(e);}finally{if(seq===token.current)setBusy('');}
  }
  async function runBot(){
   const rec=recordRef.current;if(!rec||game.current.isGameOver())return;const seq=token.current;setBusy(`${bots[rec.bot].name} is thinking`);
@@ -115,7 +116,7 @@ export default function ChessApp(){
    else if(Math.random()<bots[rec.bot].chance){const moves=game.current.moves({verbose:true});const m=moves[Math.floor(Math.random()*moves.length)];uci=m.from+m.to+(m.promotion||'');}
    else uci=(await engine.current!.evaluate(game.current.fen(),10,bots[rec.bot].skill)).best;
    await new Promise(resolve=>setTimeout(resolve,rec.timeControl?250:1000));
-   if(seq!==token.current)return;const m=game.current.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci[4]||'q'});play(soundFor(m,game.current.isGameOver()));bump(m.color);refresh();commit();await assess(m,before,seq);
+   if(seq!==token.current)return;const m=game.current.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci[4]||'q'});play(soundFor(m,game.current.isGameOver()));if(game.current.isCheckmate())playResult('lose');bump(m.color);refresh();commit();await assess(m,before,seq);
   }catch(e){report(e);if(['stockfish','practice'].includes(rec.engine))setEngineStatus('Engine unavailable');else setMode('review');}finally{if(seq===token.current)setBusy('');}
  }
  useEffect(()=>{if(page==='play'&&record&&mode==='play'&&record.result==='*'&&!busy&&engineStatus==='Stockfish ready'&&game.current.turn()!==record.color){void runBot();}},[fen,record?.id,record?.result,mode,busy,engineStatus,page]);
@@ -132,9 +133,9 @@ export default function ChessApp(){
   const m=game.current.moves({square:premove.from,verbose:true}).find(x=>x.to===premove.to);setPremove(null);
   if(m)void makeMove(premove.from,premove.to,'q');
  },[fen,busy,premove,mode]);
- function flagFall(side:'w'|'b'){const rec=recordRef.current;if(!rec||rec.result!=='*')return;token.current++;setBusy('');setPremove(null);const result=side==='w'?'0-1':'1-0';game.current.setHeader('Result',result);game.current.setHeader('Termination','Time forfeit');commit({result});play('end');setMode('review');setShowOver(true);}
+ function flagFall(side:'w'|'b'){const rec=recordRef.current;if(!rec||rec.result!=='*')return;token.current++;setBusy('');setPremove(null);const result=side==='w'?'0-1':'1-0';game.current.setHeader('Result',result);game.current.setHeader('Termination','Time forfeit');commit({result});play(side===rec.color?'lose':'win');setMode('review');setShowOver(true);}
  function offerDraw(){const rec=recordRef.current;if(!rec||rec.result!=='*'||busy)return;const botScore=(currentEval?.cp??0)*(rec.color==='w'?-1:1);
-  if(game.current.history().length>=20&&botScore<=30){game.current.setHeader('Result','1/2-1/2');game.current.setHeader('Termination','Draw agreed');commit({result:'1/2-1/2'});play('end');setMode('review');setShowOver(true);}
+  if(game.current.history().length>=20&&botScore<=30){game.current.setHeader('Result','1/2-1/2');game.current.setHeader('Termination','Draw agreed');commit({result:'1/2-1/2'});play('draw');setMode('review');setShowOver(true);}
   else setNotice(game.current.history().length<20?`${bots[rec.bot].name} wants to play on — draws can be offered after move 10.`:`${bots[rec.bot].name} declined the draw offer.`);}
  function start(chosenBot=bot,chosenColor=color,chosenEngine=engineChoice,chosenTc=tc){token.current++;setPremove(null);setShowOver(false);const startClock=chosenTc?{w:chosenTc.base*1000,b:chosenTc.base*1000}:null;clockRef.current=startClock;setClock(startClock);game.current=new Chess(startingPosition?.fen);for(const [k,v] of Object.entries({Event:startingPosition?.title||'Chessito practice',...(chosenTc?{TimeControl:`${chosenTc.base}+${chosenTc.inc}`}:{}),White:chosenColor==='w'?'You':bots[chosenBot].name,Black:chosenColor==='b'?'You':bots[chosenBot].name,Date:new Date().toISOString().slice(0,10).replaceAll('-','.'),Result:'*'}))game.current.setHeader(k,v);const now=new Date().toISOString();const r:GameRecord={id:crypto.randomUUID(),pgn:game.current.pgn(),title:startingPosition?`${startingPosition.title} vs. ${bots[chosenBot].name}`:`You vs. ${bots[chosenBot].name}`,createdAt:now,updatedAt:now,result:'*',source:'played',color:chosenColor,bot:chosenBot,engine:chosenEngine,review:[],...(chosenTc?{timeControl:chosenTc,clock:startClock!}:{})};updateRecord(r);void save(r);setMode('play');setPage('play');setFlipped(chosenColor==='b');setFeedback(null);setCurrentEval(null);setAiText('');setError('');setShowNew(false);setStartingPosition(null);refresh();}
  async function openGame(r:GameRecord,resume=false){try{if(!r.pgn){const d=await api('/api/data?id='+encodeURIComponent(r.id));r=d.game;revisions.current.set(r.id,r.revision||0);}token.current++;setPremove(null);clockRef.current=r.clock||null;setClock(r.clock||null);game.current=new Chess();game.current.loadPgn(r.pgn);updateRecord(r);setMode(resume?'play':'review');setPage('play');const side=r.source==='imported'?playerSide(game.current.getHeaders(),prefs.usernames):r.color;setFlipped(side==='b');setFeedback((resume?r.review.filter(x=>x.color===r.color):r.review).at(-1)||null);setCurrentEval(r.review.at(-1)?.after||null);setAiText(r.summary||'');setBusy('');refresh();}catch(e){report(e);}}
@@ -146,7 +147,7 @@ export default function ChessApp(){
  function navigatePly(n:number){setPly(n);setSelected(null);setHint('');const r=record?.review.find(x=>x.ply===n)||null;setFeedback(r);setCurrentEval(r?.after||(n===0?record?.review[0]?.before:null)||null);}
  async function getHint(){if(busy)return;setBusy('Finding a hint');try{const ev=await engine.current!.evaluate(displayFen);setCurrentEval(ev);setHint(ev.best?`Try ${toSan(displayFen,ev.best)}. Look at the ${ev.best.slice(0,2)} piece and consider what changes on ${ev.best.slice(2,4)}.`:'This position is finished.');if(ev.best)setSelected(ev.best.slice(0,2) as Square);}catch(e){report(e);}finally{setBusy('');}}
  function undo(){if(busy||!record||!game.current.history().length)return;token.current++;game.current.undo();if(game.current.turn()!==record.color&&game.current.history().length)game.current.undo();game.current.setHeader('Result','*');const n=game.current.history().length;const reviews=record.review.filter(r=>r.ply<=n);commit({review:reviews,result:'*',summary:undefined});setFeedback(reviews.at(-1)||null);setCurrentEval(reviews.at(-1)?.after||null);setAiText('');refresh();}
- function resign(){if(!record)return;const result=record.color==='w'?'0-1':'1-0';game.current.setHeader('Result',result);const next=commit({result});setMode('review');setConfirm(null);setShowOver(true);if(prefs.autoCoach&&prefs.hasKey&&next)void explain({pgn:next.pgn,review:next.review,result},'review');}
+ function resign(){if(!record)return;const result=record.color==='w'?'0-1':'1-0';game.current.setHeader('Result',result);const next=commit({result});setMode('review');setConfirm(null);play('lose');setShowOver(true);if(prefs.autoCoach&&prefs.hasKey&&next)void explain({pgn:next.pgn,review:next.review,result},'review');}
  async function importGames(){setError('');setBusy('Importing games');try{const parsed=parsePgnCollection(pgn);const rows=parsed.map((c):GameRecord=>{const h=c.getHeaders();const now=new Date().toISOString();return {id:crypto.randomUUID(),pgn:c.pgn(),title:`${h.White||'White'} vs. ${h.Black||'Black'}`,createdAt:now,updatedAt:now,result:['1-0','0-1','1/2-1/2'].includes(h.Result)?h.Result:gameResult(c),source:'imported',color:'w',bot:0,engine:'stockfish',review:[]};});for(const r of rows)await save(r);setPgn('');openGame(rows[0]);setNotice(`Imported ${rows.length} game${rows.length===1?'':'s'}. Select Analyze game to start the review.`);}catch(e){report(e);}finally{setBusy('');}}
  async function savePrefs(){setBusy('Saving settings');setError('');try{if(draft.provider!=='none'&&!draft.model.trim())throw new Error('Enter your provider’s model ID.');const d=await api('/api/data',{type:'settings',settings:{...draft,apiKey:key,clearKey}});const next={...draft,hasKey:d.hasKey};setPrefs(next);setDraft(next);setKey('');setClearKey(false);setNotice('Settings saved. Your API key stays on the server.');}catch(e){report(e);}finally{setBusy('');}}
  async function testCoach(){setAiBusy(true);setError('');try{const d=await api('/api/coach',{test:true});setNotice(d.text);}catch(e){report(e);}finally{setAiBusy(false);}}
