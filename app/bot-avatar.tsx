@@ -1,3 +1,6 @@
+'use client';
+import { useLook } from '../lib/look';
+import Piece from './piece';
 // Friendly vector avatars for the practice bots (original artwork).
 const faces: Record<number, { bg: string; body: React.ReactNode }> = {
  // Pip: a little chick with a pawn-like sprout
@@ -23,6 +26,8 @@ const faces: Record<number, { bg: string; body: React.ReactNode }> = {
   <rect x="8" y="26" width="5" height="12" rx="2.5" fill="#5a4b9a"/><rect x="51" y="26" width="5" height="12" rx="2.5" fill="#5a4b9a"/></> },
 };
 export default function BotAvatar({ index, size = 40 }: { index: number; size?: number }) {
+ const look = useLook();
  const f = faces[index] ?? faces[0];
+ if (look.avatars === 'pieces') return <span className="bot-face piece-portrait" role="img" aria-label="Bot avatar" style={{ width: size, height: size, borderRadius: size / 4, background: f.bg }}><Piece type={['p', 'n', 'b', 'q'][index] ?? 'p'} color="b" /></span>;
  return <svg className="bot-face" viewBox="0 0 64 64" width={size} height={size} role="img" aria-label="Bot avatar" style={{ borderRadius: size / 4, background: f.bg, flex: 'none' }}>{f.body}</svg>;
 }

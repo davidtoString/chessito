@@ -1,6 +1,6 @@
 'use client';
 import { useLook } from '../lib/look';
-// "classic" is the original Chessito flat Staunton silhouettes. "rhos" is the RhosGFX set (CC0) in /public/pieces/rhos.
+// "classic" is the original Chessito flat Staunton silhouettes; every other set is a folder of SVGs in /public/pieces/<id>/ (see lib/piece-sets.json for licenses).
 const shapes:Record<string,React.ReactNode>={
  p:<><circle cx="32" cy="16" r="8"/><path d="M27 24h10l-2 7c0 5 4 9 7 13H22c3-4 7-8 7-13z"/><path d="M25 25h14" fill="none"/></>,
  r:<><path d="M18 9h7v8h4V9h6v8h4V9h7v17l-6 5 1 13H23l1-13-6-5z"/><path d="M22 26h20M25 32h14" fill="none"/></>,
@@ -11,6 +11,6 @@ const shapes:Record<string,React.ReactNode>={
 };
 export default function Piece({type,color,set}:{type:string;color:string;set?:string}){
  const look=useLook();const chosen=set??look.pieces;const white=color==='w';
- if(chosen==='rhos')return <img className={`piece ${color}`} src={`/pieces/rhos/${color}${type.toUpperCase()}.svg`} alt="" aria-hidden="true" draggable={false}/>;
+ if(chosen!=='classic')return <img className={`piece ${color}`} src={`/pieces/${chosen}/${color}${type.toUpperCase()}.svg`} alt="" aria-hidden="true" draggable={false}/>;
  return <svg aria-hidden="true" viewBox="0 0 64 64" className={`piece ${color}`} fill={white?'#fffcf0':'#24372f'} stroke={white?'#34463b':'#e9e4d5'} color={white?'#34463b':'#e9e4d5'} strokeWidth={white?2:1.5} strokeLinejoin="round" strokeLinecap="round">{shapes[type]}<path d="M22 44h20l3 5H19z"/><path d="M19 49h26l3 7H16z"/><path d="M22 52h20" fill="none" opacity=".45"/></svg>;
 }
