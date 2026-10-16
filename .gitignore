@@ -70,3 +70,6 @@ next-env.d.ts
 *.pfx
 id_rsa
 id_ed25519
+
+# deployment logs
+.deploy.log

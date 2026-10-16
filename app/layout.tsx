@@ -4,6 +4,8 @@ import {AppearanceProvider} from './appearance';
 import {headers} from 'next/headers';
 import "./globals.css";
 import "./board.css";
+import "./look.css";
+import {earlyScript} from '../lib/look-script';
 
 export const metadata: Metadata = {
   title: "Chessito · A little better, every move",
@@ -26,6 +28,7 @@ export default async function RootLayout({
   const nonce=(await headers()).get('x-nonce')||undefined;
   return (
     <html lang="en" suppressHydrationWarning>
+      <head><script nonce={nonce} dangerouslySetInnerHTML={{__html:earlyScript}} /></head>
       <body className="antialiased"><AppearanceProvider nonce={nonce}>{children}<WebApp /></AppearanceProvider></body>
     </html>
   );

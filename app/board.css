@@ -1,15 +1,40 @@
-/* Sage and ivory board, shared by games and drills. */
-:root{--board-light:#e9e4d5;--board-dark:#729584;--last-light:#e0e9ae;--last-dark:#b6cc83}
-[data-theme="dark"]{--board-light:#d8d2c0;--board-dark:#5d7e6f;--last-light:#dce6a4;--last-dark:#a6bd76}
-.chessboard{border:6px solid #304b3e;border-radius:13px;box-shadow:0 14px 38px #071b2638,0 0 0 1px #b6c5b326;background:#304b3e}
-.square.selected{background:#e5c979;box-shadow:inset 0 0 0 3px #bb963b}
-.square.in-check{background:radial-gradient(ellipse at center,#f48b79,#c76561)}
-.piece{filter:drop-shadow(0 2px 1px #11281e35)}
-.square>span:has(.piece){width:88%;height:88%}
-.light .rank,.light .file{color:#446453}
-.dark .rank,.dark .file{color:#faf6e9}
-.legal{background:#213d305e;width:21%;height:21%}
-.legal.capture{background:none;border-color:#213d3099;width:89%;height:89%}
+/* Chess.com-inspired green board and dark UI, shared by games and drills. Pieces stay original. */
+:root{--board-light:#eeeed2;--board-dark:#769656;--last-light:#f6f669;--last-dark:#baca2b;--accent:#5d8a2f;--accent-soft:#eaf3dc;--green:#5d8a2f}
+[data-theme="dark"]{--board-light:#eeeed2;--board-dark:#769656;--last-light:#f6f669;--last-dark:#baca2b;--bg:#262421;--paper:#302e2b;--raised:#3a3835;--sidebar:#211f1c;--line:#43413d;--ink:#f1f0ee;--muted:#b3b1ad;--accent:#81b64c;--accent-soft:#34432a}
+.chessboard{position:relative;border:0;border-radius:6px;box-shadow:0 6px 20px #0003;background:var(--board-dark)}
+.square.selected.light{background:#f6f669}.square.selected.dark{background:#bbcb2b}
+.square.selected{box-shadow:none}
+.square.in-check{background:radial-gradient(circle,#ff0000 0%,#e70000 25%,#a90000 60%,transparent 100%),var(--board-light)}
+.square.dark.in-check{background:radial-gradient(circle,#ff0000 0%,#e70000 25%,#a90000 60%,transparent 100%),var(--board-dark)}
+.square.marked::after{content:"";position:absolute;inset:0;background:#eb6150;opacity:.8;z-index:0}
+.piece{filter:drop-shadow(0 1px 1px #0003)}
+.square>span:has(.piece){width:92%;height:92%;cursor:grab}
+.square>span:has(.piece):active{cursor:grabbing}
+.light .rank,.light .file{color:var(--board-dark)}
+.dark .rank,.dark .file{color:var(--board-light)}
+.rank,.file{font-size:11px;font-weight:600}
+.legal{background:#0000002e;width:30%;height:30%}
+.legal.capture{background:none;border:6px solid #0000002e;width:100%;height:100%}
+.board-arrows{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+.captured{display:inline-flex;align-items:center;margin-left:10px;height:18px}
+.captured .cap{width:17px;height:17px;margin-right:-8px;display:inline-block}
+.captured .cap.p{margin-right:-10px}
+.captured .cap svg{width:100%;height:100%}
+.captured .lead{margin-left:14px;font-size:12px;font-weight:700;color:var(--muted)}
+.player-row{margin-left:0}
+.avatar{border-radius:4px}
+.eval-bar{width:18px;min-width:18px;border-radius:3px;background:#403d39}
+.eval-bar>div{background:#fff}
+.eval-bar span{color:#403d39}
+@media(min-width:951px){
+ .training-layout{grid-template-columns:minmax(420px,calc(100dvh - 250px)) minmax(320px,400px);justify-content:center;gap:24px}
+ .board-column{max-width:calc(100dvh - 250px)}
+ .coach-column{position:sticky;top:16px;display:flex;flex-direction:column;gap:14px;max-height:calc(100dvh - 32px);overflow:auto}
+}
+.moves-card{order:-1}
+.move-list .current-move{background:var(--accent);color:#fff;border-radius:4px}
+.sidebar .nav.active{background:var(--accent-soft);color:var(--accent)}
+.primary{background:var(--accent);color:#fff;box-shadow:0 3px 0 #0003}
 .mobile-move-banner{display:none}
 @media(max-width:700px){
  .chessboard{border-width:4px;border-radius:10px}
@@ -24,3 +49,117 @@
  .mobile-best-move{display:flex;align-items:center;gap:6px;color:var(--accent);font-size:12px;margin-top:7px}
  .mobile-best-move strong{font-size:13px}
 }
+.clock{margin-left:12px;min-width:84px;text-align:right;font:700 22px/1 ui-monospace,SFMono-Regular,Menlo,monospace;padding:8px 10px;border-radius:4px;background:#262421;color:#bbb;font-variant-numeric:tabular-nums}
+.clock.active{background:#fff;color:#262421}
+.clock.low.active{background:#c33;color:#fff}
+.tc-picker{margin:14px 0}.tc-picker>span{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
+.tc-picker>div{display:flex;flex-wrap:wrap;gap:6px}
+.tc-picker button{padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:var(--raised);font-size:13px}
+.tc-picker button.chosen{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.square.premove::after{content:"";position:absolute;inset:0;background:#4b8bf5;opacity:.5}
+/* Decluttered chrome */
+.play-actions{margin:0 0 14px;justify-content:flex-start;gap:8px;flex-wrap:wrap}
+.play-card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.play-card h2{font-size:20px;margin:0}.play-card p{margin:0 0 6px;color:var(--muted);font-size:14px}
+.play-card .full{width:100%;justify-content:center}
+.play-card .text-action{margin-top:4px;text-align:left}
+.topbar{height:48px}
+main{padding-top:18px}
+.play-actions{order:-2;margin:0}
+.moves-card .move-list{min-height:0;max-height:260px}
+/* Game review */
+.cls-badge{position:absolute;top:-2px;right:-2px;z-index:4;min-width:26px;height:26px;border-radius:13px;display:grid;place-items:center;font:800 13px/1 system-ui,sans-serif;color:#fff;box-shadow:0 1px 4px #0006;padding:0 4px;pointer-events:none;transform:translate(25%,-25%)}
+.square:nth-child(-n+8) .cls-badge{transform:translate(10%,0)}
+.cls-dot{display:inline-grid;place-items:center;min-width:17px;height:17px;border-radius:9px;font:800 10px/1 system-ui,sans-serif;color:#fff;margin-left:4px;padding:0 3px;vertical-align:middle}
+.review-card{order:-3;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.review-card h2{font-size:18px;margin:0}
+.review-card .full{width:100%;justify-content:center}
+.accuracy-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.accuracy-row>div{background:var(--raised);border-radius:6px;padding:10px 12px;display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:center}
+.accuracy-row small{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.accuracy-row strong{grid-column:1/3;font-size:26px;line-height:1.2}
+.accuracy-row em{grid-column:1/3;font-style:normal;font-size:11px;color:var(--muted)}
+.acc-chip{width:12px;height:12px;border-radius:2px;border:1px solid #888}.acc-chip.white{background:#fff}.acc-chip.black{background:#262421}
+.eval-graph{width:100%;height:auto;border-radius:4px;cursor:pointer;display:block}
+.class-table{width:100%;border-collapse:collapse;font-size:14px}
+.class-table td{padding:5px 4px}.class-table td.num{width:36px;text-align:center;font-weight:700}.class-table td.name{text-align:center;color:var(--muted)}
+.review-progress{height:22px;background:var(--raised);border-radius:4px;position:relative;overflow:hidden}
+.review-progress>span{position:absolute;inset:0 auto 0 0;background:var(--accent);opacity:.55;transition:width .2s}
+.review-progress>small{position:relative;display:block;text-align:center;line-height:22px;font-size:11px}
+.move-list .cls-dot{margin-left:6px}
+.class-table td{padding:2px 4px;font-size:13px}
+.accuracy-row strong{font-size:22px}
+.review-card{gap:10px;padding:14px}
+.coach-column:has(.review-card) .play-actions{order:5}
+.coach-column:has(.review-card) .moves-card{order:-2}
+.opening-name{margin:0;padding:8px 16px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line)}
+.opening-name strong{color:var(--ink);margin-right:6px}
+/* Analysis + puzzles */
+.engine-card,.puzzle-card,.load-card,.puzzle-stats{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:16px}
+.engine-card h2{font-size:18px;margin:0}
+.engine-line-row{display:grid;grid-template-columns:58px 1fr auto;gap:8px;align-items:baseline;width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:transparent;padding:9px 2px;font-size:13px}
+.engine-line-row:hover{background:var(--raised)}
+.engine-line-row b{font-variant-numeric:tabular-nums;padding:2px 6px;border-radius:4px;text-align:center}
+.engine-line-row b.plus{background:#f1f0ee;color:#262421}.engine-line-row b.minus{background:#403d39;color:#f1f0ee}
+.engine-line-row small{color:var(--muted)}
+.load-card summary{cursor:pointer;font-size:14px;color:var(--muted)}
+.load-card textarea{width:100%;margin:10px 0;font:12px ui-monospace,monospace;background:var(--raised);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px}
+.puzzle-rating{display:flex;align-items:baseline;gap:10px}.puzzle-rating span{color:var(--muted);font-size:13px}.puzzle-rating strong{font-size:34px}
+.puzzle-rating em{font-style:normal;font-weight:700}.puzzle-rating em.plus{color:var(--accent)}.puzzle-rating em.minus{color:#ca3431}
+.puzzle-turn{font-size:18px;font-weight:600;margin:8px 0 4px}
+.puzzle-themes small{color:var(--muted)}.puzzle-themes div{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.puzzle-themes span{background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:2px 10px;font-size:12px}
+.puzzle-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+.puzzle-stats strong{display:block;font-size:22px}.puzzle-stats span{font-size:12px;color:var(--muted)}
+.puzzle-stats .spark{grid-column:1/5;width:100%;height:46px;margin-top:6px}
+.puzzle-card .actions{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+/* Learn */
+.learn-tabs{display:flex;gap:6px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.learn-tabs button{border:0;background:transparent;padding:10px 16px;font-size:15px;color:var(--muted);border-bottom:3px solid transparent;border-radius:0}
+.learn-tabs button.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+.lesson-group{margin-bottom:26px}.lesson-group h2{font-size:18px;margin:0 0 10px}
+.lesson-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.lesson-tile{display:flex;flex-direction:column;gap:6px;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.lesson-tile:hover:not(.static){border-color:var(--accent)}
+.lesson-tile strong{font-size:15px;display:flex;align-items:center;gap:6px}.lesson-tile .tick{color:var(--accent)}
+.lesson-tile span{font-size:13px;color:var(--muted)}.lesson-tile small{color:var(--muted)}
+.line-list{display:flex;flex-direction:column;gap:2px}.line-list button{border:0;background:transparent;text-align:left;padding:6px 4px;font-size:13px;color:var(--accent);display:flex;gap:6px;align-items:center}
+.line-list button:hover{background:var(--raised)}
+.lesson-card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.lesson-card h2{font-size:20px;margin:0}
+.lesson-text{font-size:15px;line-height:1.6;margin:0}
+.lesson-msg{margin:0;padding:8px 10px;border-radius:6px;background:var(--warning-bg);color:var(--warning);font-size:14px}.lesson-msg.ok{background:var(--success-bg);color:var(--success)}
+.dots{display:flex;gap:6px}.dots .dot{width:22px;height:5px;border-radius:3px;background:var(--line)}.dots .dot.done{background:var(--accent);opacity:.5}.dots .dot.on{background:var(--accent)}
+.lesson-nav{display:flex;justify-content:space-between;gap:8px;margin-top:6px}
+.puzzle-set{width:100%;margin-bottom:10px;padding:8px 10px;background:var(--raised);color:var(--ink);border:1px solid var(--line);border-radius:6px;font-size:14px}
+.lesson-card .text-action{align-self:flex-start;margin:0;padding:0;min-height:0}
+.quiz-card{max-width:640px;margin:20px auto;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:24px;display:flex;flex-direction:column;gap:14px}
+.quiz-card h2{font-size:22px;margin:0}
+.quiz-options{display:flex;flex-direction:column;gap:8px}
+.quiz-options button{text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:6px;background:var(--raised);font-size:15px}
+.quiz-options button:not(:disabled):hover{border-color:var(--accent)}
+.quiz-options button.right{border-color:#4a8f1f;background:var(--success-bg);color:var(--success)}
+.quiz-options button.wrong{border-color:#ca3431;background:var(--danger-bg);color:var(--danger)}
+.quiz-score{font-size:42px;font-weight:700;margin:0}
+.review-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin-bottom:18px}
+/* Explanations */
+.why-panel{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);margin-top:10px;padding-top:10px}
+.explanation{font-size:14px;line-height:1.55}.explanation h4{margin:12px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.explanation ul{margin:0;padding-left:18px}.explanation li{margin:3px 0}
+.why-head{font-weight:700;margin:6px 0}.why-line{font:12px ui-monospace,monospace;color:var(--muted);margin:4px 0}
+.engine-line-wrap{display:grid;grid-template-columns:1fr auto;align-items:center;gap:6px}
+.why-mini{border:1px solid var(--line);background:var(--raised);border-radius:12px;padding:2px 10px;font-size:12px;color:var(--muted)}
+.ai-explanation-box{margin-top:6px}
+/* Puzzle explanation and think-first */
+.puzzle-explain{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:16px;font-size:14px;line-height:1.55}
+.puzzle-explain h3{margin:0 0 4px;font-size:18px}.puzzle-explain h4{margin:12px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.puzzle-explain ul,.puzzle-explain ol{margin:0;padding-left:20px}.puzzle-explain li{margin:3px 0}.puzzle-explain li.yours{color:var(--ink)}
+.think-toggle{display:flex;align-items:center;gap:8px;font-size:14px;margin:0 0 10px}.think-toggle small{color:var(--muted)}
+/* Library filters */
+.library-filters{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:end;margin:0 0 16px}
+.library-filters .chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 14px;font-size:13px;color:var(--muted)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.library-filters label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.library-filters select{padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);font-size:13px}
+.month-heading{grid-column:1/-1;margin:14px 0 0;font-size:16px;color:var(--muted)}
