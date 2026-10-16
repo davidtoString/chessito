@@ -7,6 +7,9 @@ services:
       CHESSITO_USERNAME: "${CHESSITO_USERNAME:-david}"
       CHESSITO_PASSWORD: "${CHESSITO_PASSWORD:?Run node docker/setup.mjs first}"
       CHESSITO_PUBLIC_ORIGIN: "${CHESSITO_PUBLIC_ORIGIN:-}"
+      CHESSITO_SIGNUP: "${CHESSITO_SIGNUP:-invite}"
+      RESEND_API_KEY: "${RESEND_API_KEY:-}"
+      CHESSITO_EMAIL_FROM: "${CHESSITO_EMAIL_FROM:-}"
       CHESSITO_ENGINE_SERVICE: "http://engines:8000"
     depends_on:
       engines:
