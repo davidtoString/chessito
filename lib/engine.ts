@@ -1,5 +1,6 @@
 import { Chess } from 'chess.js';
 import { terminalEval, type Evaluation } from './chess';
+export type EngineLine = { multipv: number; depth: number; cp: number; mate?: number; pv: string[] };
 export class Engine {
  private worker: Worker | null=null;
  private ready: Promise<void> | null=null;
@@ -17,7 +18,7 @@ export class Engine {
    this.worker.postMessage('uci');
   });return this.ready;
  }
- evaluate(fen:string, depth=12, skill=20):Promise<Evaluation> {
+ evaluate(fen:string, depth=12, skill=20, ms=1200):Promise<Evaluation> {
   const key=fen+'|'+depth; if(skill===20&&this.cache.has(key))return Promise.resolve(this.cache.get(key)!);
   const terminal=terminalEval(new Chess(fen));if(terminal)return Promise.resolve(terminal);
   const job=this.queue.then(async()=>{await this.init();return new Promise<Evaluation>((resolve,reject)=>{
@@ -29,10 +30,31 @@ export class Engine {
     if(score&&!/upperbound|lowerbound/.test(line)){const n=Number(score[2]);result={...result,cp:(score[1]==='mate'?(n<0?-10000:10000):n)*(white?1:-1),mate:score[1]==='mate'?n*(white?1:-1):undefined,depth:d?Number(d[1]):result.depth};}
     if(line.startsWith('bestmove ')){clearTimeout(timer);this.listener=null;this.failed=null;result.best=line.split(' ')[1];if(skill===20){this.cache.set(key,result);if(this.cache.size>2048)this.cache.delete(this.cache.keys().next().value!);}resolve(result);}
    };
+   this.worker!.postMessage('setoption name MultiPV value 1');
    this.worker!.postMessage(`setoption name Skill Level value ${skill}`);
    this.worker!.postMessage(`position fen ${fen}`);
-   this.worker!.postMessage(`go depth ${depth} movetime 1200`);
+   this.worker!.postMessage(`go depth ${depth} movetime ${ms}`);
   });});this.queue=job.catch(()=>{});return job;
+ }
+ // Streams the top `multipv` lines until `depth`, or until stop() is called. Scores are from White's side.
+ analyzeLines(fen:string, multipv:number, depth:number, onUpdate:(lines:EngineLine[])=>void):{stop:()=>void;done:Promise<void>} {
+  let stopped=false;let halt=()=>{};
+  const job=this.queue.then(async()=>{if(stopped)return;await this.init();if(stopped)return;return new Promise<void>(resolve=>{
+   const white=new Chess(fen).turn()==='w';const lines:EngineLine[]=[];
+   halt=()=>this.worker?.postMessage('stop');
+   this.failed=()=>{this.listener=null;resolve();};
+   this.listener=(line)=>{
+    const m=line.match(/^info .*?\bdepth (\d+) .*?\bmultipv (\d+) .*?\bscore (cp|mate) (-?\d+).*? pv (.+)$/);
+    if(m&&!/upperbound|lowerbound/.test(line)){const n=Number(m[4]);lines[Number(m[2])-1]={multipv:Number(m[2]),depth:Number(m[1]),cp:(m[3]==='mate'?(n<0?-10000:10000):n)*(white?1:-1),mate:m[3]==='mate'?n*(white?1:-1):undefined,pv:m[5].trim().split(' ')};onUpdate(lines.filter(Boolean));}
+    if(line.startsWith('bestmove ')){this.listener=null;this.failed=null;resolve();}
+   };
+   this.worker!.postMessage('setoption name Skill Level value 20');
+   this.worker!.postMessage(`setoption name MultiPV value ${multipv}`);
+   this.worker!.postMessage(`position fen ${fen}`);
+   this.worker!.postMessage(`go depth ${depth}`);
+  });});
+  this.queue=job.catch(()=>{});
+  return {stop:()=>{stopped=true;halt();},done:job.catch(()=>{})};
  }
  destroy(){this.worker?.terminate();this.worker=null;this.ready=null;}
 }

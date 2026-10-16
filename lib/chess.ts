@@ -1,7 +1,7 @@
 import { Chess, type Move } from 'chess.js';
 export type Evaluation = { cp: number; mate?: number; best: string; depth: number };
 export type ReviewMove = { ply: number; san: string; color: string; before: Evaluation; after: Evaluation; loss: number; label: string; advice: string; bestSan: string };
-export type GameRecord = { id: string; pgn: string; title: string; createdAt: string; updatedAt: string; result: string; source: 'played'|'imported'; color: 'w'|'b'; bot: number; engine: string; review: ReviewMove[]; summary?: string; revision?:number; reviewCount?:number; players?:{white:string;black:string} };
+export type GameRecord = { id: string; pgn: string; title: string; createdAt: string; updatedAt: string; result: string; source: 'played'|'imported'; color: 'w'|'b'; bot: number; engine: string; review: ReviewMove[]; summary?: string; revision?:number; timeControl?:{base:number;inc:number}; clock?:{w:number;b:number}; reviewCount?:number; players?:{white:string;black:string}; outcome?:'won'|'lost'|'drawn'|'unfinished'|'other'; gameDate?:string };
 export const bots = [
  { name: 'Pip', level: 'First steps', description: 'A patient sparring partner. Plenty of room to learn.', skill: 0, chance: .65, symbol: '♟' },
  { name: 'Clover', level: 'Beginner', description: 'Find your footing and look for loose pieces.', skill: 3, chance: .35, symbol: '♞' },
