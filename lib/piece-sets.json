@@ -1,0 +1,290 @@
+[
+ {
+  "id": "rhos",
+  "label": "Modern",
+  "author": "RhosGFX (black pieces recoloured here)",
+  "license": "CC0 1.0",
+  "url": "https://rhosgfx.itch.io/vector-chess-pieces",
+  "group": "free"
+ },
+ {
+  "id": "classic",
+  "label": "Chessito classic",
+  "author": "Chessito",
+  "license": "Original artwork",
+  "url": "",
+  "group": "free"
+ },
+ {
+  "id": "kiwen-suwi",
+  "label": "Kiwen Suwi",
+  "author": "neverRare",
+  "license": "CC BY 4.0",
+  "url": "https://github.com/neverRare",
+  "group": "free"
+ },
+ {
+  "id": "papercut",
+  "label": "Papercut",
+  "author": "Nikolay Anzarov",
+  "license": "CC BY 4.0",
+  "url": "https://nikoichu.itch.io/",
+  "group": "free"
+ },
+ {
+  "id": "totoy",
+  "label": "Totoy",
+  "author": "Kosal Sen",
+  "license": "CC BY 4.0",
+  "url": "https://github.com/lichess-org/lila",
+  "group": "free"
+ },
+ {
+  "id": "firi",
+  "label": "Firi",
+  "author": "James Faure",
+  "license": "CC BY 4.0",
+  "url": "https://github.com/jfaure/Firi-pieceset",
+  "group": "free"
+ },
+ {
+  "id": "celtic",
+  "label": "Celtic",
+  "author": "Maurizio Monge",
+  "license": "MIT",
+  "url": "https://github.com/maurimo/chess-art",
+  "group": "free"
+ },
+ {
+  "id": "fantasy",
+  "label": "Fantasy",
+  "author": "Maurizio Monge",
+  "license": "MIT",
+  "url": "https://github.com/maurimo/chess-art",
+  "group": "free"
+ },
+ {
+  "id": "spatial",
+  "label": "Spatial",
+  "author": "Maurizio Monge",
+  "license": "MIT",
+  "url": "https://github.com/maurimo/chess-art",
+  "group": "free"
+ },
+ {
+  "id": "chessnut",
+  "label": "Chessnut",
+  "author": "Alexis Luengas",
+  "license": "Apache 2.0",
+  "url": "https://github.com/LexLuengas/chessnut-pieces",
+  "group": "free"
+ },
+ {
+  "id": "eyes",
+  "label": "Eyes",
+  "author": "Maurizio Monge",
+  "license": "MIT",
+  "url": "https://github.com/maurimo/chess-art",
+  "group": "free"
+ },
+ {
+  "id": "freak",
+  "label": "Freak",
+  "author": "Maurizio Monge",
+  "license": "MIT",
+  "url": "https://github.com/maurimo/chess-art",
+  "group": "free"
+ },
+ {
+  "id": "prmi",
+  "label": "Prmi",
+  "author": "Maurizio Monge",
+  "license": "MIT",
+  "url": "https://github.com/maurimo/chess-art",
+  "group": "free"
+ },
+ {
+  "id": "skulls",
+  "label": "Skulls",
+  "author": "Maurizio Monge",
+  "license": "MIT",
+  "url": "https://github.com/maurimo/chess-art",
+  "group": "free"
+ },
+ {
+  "id": "shapes",
+  "label": "Shapes",
+  "author": "flugsio",
+  "license": "CC BY-SA 4.0",
+  "url": "https://github.com/flugsio/chess_shapes",
+  "group": "open"
+ },
+ {
+  "id": "cburnett",
+  "label": "Cburnett",
+  "author": "Colin M.L. Burnett",
+  "license": "GPLv2+",
+  "url": "https://en.wikipedia.org/wiki/User:Cburnett",
+  "group": "open"
+ },
+ {
+  "id": "merida",
+  "label": "Merida",
+  "author": "Armando Hernandez Marroquin",
+  "license": "GPLv2+",
+  "url": "https://www.gnu.org/licenses/gpl-2.0.txt",
+  "group": "open"
+ },
+ {
+  "id": "mpchess",
+  "label": "MPChess",
+  "author": "Maxime Chupin",
+  "license": "GPLv3+",
+  "url": "https://github.com/chupinmaxime",
+  "group": "open"
+ },
+ {
+  "id": "letter",
+  "label": "Letter",
+  "author": "usolando",
+  "license": "AGPLv3+",
+  "url": "https://lichess.org/@/usolando",
+  "group": "open"
+ },
+ {
+  "id": "pirouetti",
+  "label": "Pirouetti",
+  "author": "pirouetti",
+  "license": "AGPLv3+",
+  "url": "https://lichess.org/@/pirouetti",
+  "group": "open"
+ },
+ {
+  "id": "pixel",
+  "label": "Pixel",
+  "author": "therealqtpi",
+  "license": "AGPLv3+",
+  "url": "https://github.com/lichess-org/lila",
+  "group": "open"
+ },
+ {
+  "id": "anarcandy",
+  "label": "Anarcandy",
+  "author": "caderek",
+  "license": "CC BY-NC-SA 4.0",
+  "url": "https://github.com/caderek",
+  "group": "nc"
+ },
+ {
+  "id": "caliente",
+  "label": "Caliente",
+  "author": "avi",
+  "license": "CC BY-NC-SA 4.0",
+  "url": "https://github.com/avi-0/caliente",
+  "group": "nc"
+ },
+ {
+  "id": "california",
+  "label": "California",
+  "author": "Jerry S.",
+  "license": "CC BY-NC-SA 4.0",
+  "url": "https://sites.google.com/view/jerrychess/home",
+  "group": "nc"
+ },
+ {
+  "id": "cardinal",
+  "label": "Cardinal",
+  "author": "sadsnake1",
+  "license": "CC BY-NC-SA 4.0",
+  "url": "https://github.com/lichess-org/lila",
+  "group": "nc"
+ },
+ {
+  "id": "cooke",
+  "label": "Cooke",
+  "author": "fejfar",
+  "license": "CC BY-NC-SA 4.0",
+  "url": "https://github.com/fejfar",
+  "group": "nc"
+ },
+ {
+  "id": "dubrovny",
+  "label": "Dubrovny",
+  "author": "sadsnake1",
+  "license": "CC BY-NC-SA 4.0",
+  "url": "https://github.com/lichess-org/lila",
+  "group": "nc"
+ },
+ {
+  "id": "fresca",
+  "label": "Fresca",
+  "author": "sadsnake1",
+  "license": "CC BY-NC-SA 4.0",
+  "url": "https://github.com/lichess-org/lila",
+  "group": "nc"
+ },
+ {
+  "id": "gioco",
+  "label": "Gioco",
+  "author": "sadsnake1",
+  "license": "CC BY-NC-SA 4.0",
+  "url": "https://github.com/lichess-org/lila",
+  "group": "nc"
+ },
+ {
+  "id": "horsey",
+  "label": "Horsey",
+  "author": "cham, michael1241",
+  "license": "CC BY-NC-SA 4.0",
+  "url": "https://github.com/lichess-org/lila",
+  "group": "nc"
+ },
+ {
+  "id": "icpieces",
+  "label": "IC Pieces",
+  "author": "sadsnake1",
+  "license": "CC BY-NC-SA 4.0",
+  "url": "https://github.com/lichess-org/lila",
+  "group": "nc"
+ },
+ {
+  "id": "maestro",
+  "label": "Maestro",
+  "author": "sadsnake1",
+  "license": "CC BY-NC-SA 4.0",
+  "url": "https://github.com/lichess-org/lila",
+  "group": "nc"
+ },
+ {
+  "id": "minimal-warmth",
+  "label": "Minimal warmth",
+  "author": "blunder_reign",
+  "license": "CC BY-NC-SA 4.0",
+  "url": "https://lichess.org/@/blunder_reign",
+  "group": "nc"
+ },
+ {
+  "id": "staunty",
+  "label": "Staunty",
+  "author": "sadsnake1",
+  "license": "CC BY-NC-SA 4.0",
+  "url": "https://github.com/lichess-org/lila",
+  "group": "nc"
+ },
+ {
+  "id": "tatiana",
+  "label": "Tatiana",
+  "author": "sadsnake1",
+  "license": "CC BY-NC-SA 4.0",
+  "url": "https://github.com/lichess-org/lila",
+  "group": "nc"
+ },
+ {
+  "id": "xkcd",
+  "label": "xkcd",
+  "author": "Randall Munroe",
+  "license": "CC BY-NC-SA 2.5",
+  "url": "https://xkcd.com/license.html",
+  "group": "nc"
+ }
+]
