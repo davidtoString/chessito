@@ -131,13 +131,30 @@ On a phone, open your HTTPS address. **iPhone:** Safari → Share → Add to Hom
 
 No public domain or remote host is configured automatically. Mobile viewport checks do not replace testing on your actual Safari/Android device.
 
+## Accounts and sharing with friends
+
+Chessito has real accounts. The owner account is created on first start from `CHESSITO_USERNAME` and `CHESSITO_PASSWORD` in `.env` and keeps all existing games and settings. After that, sign in and **change the password in Settings → Account**; later changes to `CHESSITO_PASSWORD` are ignored.
+
+- **Invite-only:** in Settings → Account the owner creates invite links (valid 1/7/30 days, for 1/5/20 people). A friend opens the link, picks a username (3–32 characters) and a password (at least 10), and is signed in. There is no open sign-up. Set `CHESSITO_SIGNUP=closed` to stop new accounts entirely.
+- **Private by default:** every account has its own games, puzzle rating, lesson progress, settings and encrypted AI key. Friends never see each other's data. The owner can see who has joined, disable or remove a member (which deletes their data), and revoke invites. The owner can also read the database on the server, so only invite people you trust.
+- **Members can** change their password, sign out other devices, and delete their own account and data.
+- **Security:** passwords are hashed with scrypt; sessions are random tokens stored server-side (so signing out, changing a password, disabling or deleting an account takes effect immediately); logins are rate-limited per username and per visitor address (the real address is read from Cloudflare's `CF-Connecting-IP` when the request comes through a private proxy); account changes require a matching `Origin`.
+- **Remember me:** the sign-in page has a "Remember me on this device" checkbox (ticked by default). Ticked keeps you signed in for 30 days; unticked is a browser-session login that also expires on the server after 12 hours. Use it unticked on a shared computer.
+- **Email through Resend (optional):** with email on, members can reset a forgotten password by email, the owner can email invites straight to a friend, and anyone can confirm an address in Settings → Account. To turn it on:
+  1. Create an API key at [resend.com](https://resend.com) and verify a sending domain there (add the DNS records Resend shows; with Cloudflare, set them to DNS only). Until a domain is verified, Resend only delivers to your own account's address.
+  2. Put `RESEND_API_KEY=...` and `CHESSITO_EMAIL_FROM="Chessito <chess@your-verified-domain>"` in `.env`, then recreate the container (`docker compose ... up -d`).
+  3. Check it: `docker compose exec chessito node docker/users.mjs test-email you@example.com`.
+  Reset links last 1 hour and work once; a typo in the new password does not use up the link; confirmation and reset emails only go to an address its owner confirmed (an invite emailed to an address confirms it for that friend). "Forgot password" gives the same answer whether or not an account exists, and sending is rate-limited. Without these settings none of this appears, and invite links are shared by hand.
+- **Owner tools** (inside the container): `docker compose exec chessito node docker/users.mjs list`, `... reset-password <username>` (prints a new random password once) and `... invite [days] [uses]` and `... test-email <address>`. Use `reset-password` if the owner is locked out.
+- `tests/auth.test.mjs` and `tests/mail.test.mjs` cover the account and email logic; `tests/accounts-http.mjs` runs the whole friend flow, and `tests/email-http.mjs` the email flows against a fake Resend server, each on a running container (see the file headers for the commands).
+
 ## Persistence, privacy, and operations
 
 The `chessito_data` volume stores `chessito.sqlite`, its WAL files, and `encryption-key`. Migrations run on startup. Existing self-hosted Wrangler/Miniflare records are imported into production SQLite once, leaving legacy files intact. Rebuilds/restarts and `docker compose down` preserve the volume; **`down -v` deletes it**.
 
 Provider keys are AES-256-GCM encrypted, with random IVs and user/provider-bound authenticated data. The persistent encryption key must be backed up with the database. Keys are never returned to the browser, included in PGNs, or stored in localStorage. Switching providers removes the previous key on settings save. Usernames can be changed without replacing provider settings or keys.
 
-Docker uses signed HttpOnly SameSite session cookies, origin checks, password-login rate limits, CSP nonces, request size/time limits, and bounded coaching/engine requests. The gateway strips spoofed identity/forwarding headers and binds the internal Next server to loopback. Containers run with dropped capabilities, no-new-privileges, read-only roots, bounded temporary storage, memory/CPU limits, health checks, and rotated logs. Logs omit request bodies, passwords, keys, and provider response details.
+Docker uses server-side sessions in HttpOnly SameSite cookies, origin checks, per-account and per-address login rate limits, CSP nonces, request size/time limits, and bounded coaching/engine requests. The gateway strips spoofed identity/forwarding headers and binds the internal Next server to loopback. Containers run with dropped capabilities, no-new-privileges, read-only roots, bounded temporary storage, memory/CPU limits, health checks, and rotated logs. Logs omit request bodies, passwords, keys, and provider response details.
 
 Played-game saves use revision checks to reject conflicting device updates. Unsynced drafts are kept locally and recovered on reconnect/reload. If another device changed the same game, recovery creates a separate draft. This depends on permitted browser storage; it is not a full offline chess app.
 
