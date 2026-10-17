@@ -10,7 +10,7 @@ import { compareMoves, moveFacts, whyGood, walkPv, lineText, scan as scanPositio
 import { ExplanationView, AiExplain, resultContext, type Ask, type Result } from './why-panel';
 
 const START = new Chess().fen();
-type Props = { engine: Engine | null; ready: boolean; openings: Openings | null; ask?: Ask };
+type Props = { engine: Engine | null; ready: boolean; openings: Openings | null; ask?: Ask; initialPgn?: string };
 
 function scoreText(l: { cp: number; mate?: number }) {
  if (l.mate !== undefined) return l.mate === 0 ? '#' : `M${Math.abs(l.mate)}`;
@@ -27,8 +27,9 @@ function pvText(fen: string, pv: string[], max = 8) {
  return out.join(' ');
 }
 
-export default function AnalysisBoard({ engine, ready, openings, ask = null }: Props) {
+export default function AnalysisBoard({ engine, ready, openings, ask = null, initialPgn }: Props) {
  const [explained, setExplained] = useState<Result | null>(null);
+ useEffect(() => { if (!initialPgn) return; try { const c = new Chess(); c.loadPgn(initialPgn); setStartFen(c.getHeaders().FEN || START); setMoves(c.history()); setIdx(0); setSelected(null); } catch { /* keep the board as it is */ } }, [initialPgn]);
  const [startFen, setStartFen] = useState(START);
  const [moves, setMoves] = useState<string[]>([]);
  const [idx, setIdx] = useState(0);

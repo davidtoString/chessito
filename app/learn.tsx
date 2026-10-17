@@ -3,13 +3,14 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Chess, type Square } from 'chess.js';
 import { Check, ChevronLeft, ChevronRight, Eye, RotateCcw, ArrowLeft, Lightbulb } from 'lucide-react';
 import Board from './board';
+import Classics from './classics';
 import { lessons, categories, type Lesson, type Step, type Quiz } from '../lib/lessons';
 import { play, soundFor } from '../lib/sound';
 
-export type LearnProgress = { lessons: string[]; openings: Record<string, { clean: number; runs: number }>; quizzes?: Record<string, number> };
+export type LearnProgress = { lessons: string[]; openings: Record<string, { clean: number; runs: number }>; quizzes?: Record<string, number>; games?: string[] };
 export const emptyLearn: LearnProgress = { lessons: [], openings: {}, quizzes: {} };
 export type OpeningLine = { id: string; family: string; side: 'w' | 'b'; eco: string; name: string; pgn: string; plies: number };
-type Props = { progress: LearnProgress; onProgress: (p: LearnProgress) => void; drills: React.ReactNode };
+type Props = { progress: LearnProgress; onProgress: (p: LearnProgress) => void; drills: React.ReactNode; onAnalyze: (pgn: string) => void };
 
 const START = new Chess().fen();
 const wait = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
@@ -180,8 +181,8 @@ function OpeningTrainer({ line, onResult, onBack, onNext }: { line: OpeningLine;
  </div>;
 }
 
-export default function Learn({ progress, onProgress, drills }: Props) {
- const [tab, setTab] = useState<'lessons' | 'openings' | 'drills'>('lessons');
+export default function Learn({ progress, onProgress, drills, onAnalyze }: Props) {
+ const [tab, setTab] = useState<'lessons' | 'classics' | 'openings' | 'drills'>('lessons');
  const [lessonId, setLessonId] = useState<string | null>(null);
  const [review, setReview] = useState<Lesson | null>(null);
  const [lines, setLines] = useState<OpeningLine[] | null>(null);
@@ -208,7 +209,7 @@ export default function Learn({ progress, onProgress, drills }: Props) {
 
  return <div className="learn">
   <div className="learn-tabs" role="tablist">
-   {(['lessons', 'openings', 'drills'] as const).map(t => <button key={t} role="tab" aria-selected={tab === t} className={tab === t ? 'on' : ''} onClick={() => setTab(t)}>{t === 'lessons' ? `Lessons ${progress.lessons.length}/${lessons.length}` : t === 'openings' ? 'Openings' : 'Drills'}</button>)}
+   {(['lessons', 'classics', 'openings', 'drills'] as const).map(t => <button key={t} role="tab" aria-selected={tab === t} className={tab === t ? 'on' : ''} onClick={() => setTab(t)}>{t === 'lessons' ? `Lessons ${progress.lessons.length}/${lessons.length}` : t === 'classics' ? 'Classic games' : t === 'openings' ? 'Openings' : 'Drills'}</button>)}
   </div>
   {tab === 'lessons' && progress.lessons.length > 0 && <div className="review-bar"><span>Practise what you have learned</span><button className="secondary" onClick={startReview}>Quick review</button></div>}
   {tab === 'lessons' && categories.map(cat => <section key={cat} className="lesson-group"><h2>{cat}</h2>
@@ -223,6 +224,7 @@ export default function Learn({ progress, onProgress, drills }: Props) {
       <div className="line-list">{(family === fam ? ls : ls.slice(0, 0)).map(l => <button key={l.id} onClick={() => setLineId(l.id)}>{l.name.replace(fam + ': ', '').replace(fam, 'Main line')}{(progress.openings[l.id]?.clean ?? 0) > 0 && <Check size={13} />}</button>)}</div>
       <button className="secondary" onClick={() => setFamily(family === fam ? null : fam)}>{family === fam ? 'Hide lines' : 'Choose a line'}</button></div>;
     })}</div></section>)}</>)}
+  {tab === 'classics' && <Classics seen={progress.games ?? []} onSeen={id => { if (!(progress.games ?? []).includes(id)) onProgress({ ...progress, games: [...(progress.games ?? []), id] }); }} onAnalyze={onAnalyze} />}
   {tab === 'drills' && drills}
  </div>;
 }

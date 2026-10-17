@@ -12,11 +12,11 @@ export type Step = {
  arrows?: [string, string][];
  marks?: string[];
 };
-export type Category = 'Basics' | 'Tactics' | 'Strategy' | 'Endgames' | 'Openings' | 'Famous games';
+export type Category = 'Basics' | 'Tactics' | 'Strategy' | 'Endgames' | 'Openings';
 export type Quiz = { q: string; options: string[]; answer: number; why: string };
 export type Lesson = { id: string; category: Category; title: string; summary: string; steps: Step[]; quiz?: Quiz[] };
 
-export const categories: Category[] = ['Basics', 'Tactics', 'Strategy', 'Endgames', 'Openings', 'Famous games'];
+export const categories: Category[] = ['Basics', 'Tactics', 'Strategy', 'Endgames', 'Openings'];
 
 const baseLessons: Lesson[] = [
  // ───────────── Basics ─────────────
@@ -285,17 +285,6 @@ const extraLessons: Lesson[] = [
   { text: 'White combines d4, c4 and a fianchettoed bishop on g2. The bishop pressures the queenside and the d5 pawn for the whole game.', demo: ['d4', 'Nf6', 'c4', 'e6', 'g3', 'd5', 'Bg2', 'Be7', 'Nf3', 'O-O'] },
  ] },
 
- // ───────────── Famous games ─────────────
- { id: 'game-opera', category: 'Famous games', title: 'Morphy’s Opera Game', summary: 'Paris, 1858: development beats everything.', steps: [
-  { text: 'Paul Morphy played this game as White against two amateur noblemen at the opera. He develops quickly, trades when it helps, and keeps the initiative. Black’s bishop takes the knight, and White’s queen recaptures.', demo: ['e4', 'e5', 'Nf3', 'd6', 'd4', 'Bg4', 'dxe5', 'Bxf3', 'Qxf3', 'dxe5'] },
-  { text: 'Morphy brings out more pieces while Black plays pawn moves and queen moves. Count the developed pieces after each side’s eighth move.', setup: ['e4', 'e5', 'Nf3', 'd6', 'd4', 'Bg4', 'dxe5', 'Bxf3', 'Qxf3', 'dxe5'], demo: ['Bc4', 'Nf6', 'Qb3', 'Qe7', 'Nc3', 'c6', 'Bg5', 'b5'] },
-  { text: 'Now the finish. White sacrifices a knight to open the b-file, then a rook, and finally the queen: a mating attack where every piece is used.', setup: ['e4', 'e5', 'Nf3', 'd6', 'd4', 'Bg4', 'dxe5', 'Bxf3', 'Qxf3', 'dxe5', 'Bc4', 'Nf6', 'Qb3', 'Qe7', 'Nc3', 'c6', 'Bg5', 'b5'], demo: ['Nxb5', 'cxb5', 'Bxb5+', 'Nbd7', 'O-O-O', 'Rd8', 'Rxd7', 'Rxd7', 'Rd1', 'Qe6', 'Bxd7+', 'Nxd7', 'Qb8+', 'Nxb8', 'Rd8#'], demoEnds: 'mate' },
- ] },
- { id: 'game-immortal', category: 'Famous games', title: 'The Immortal Game', summary: 'Anderssen sacrifices two rooks and a queen for a mate.', steps: [
-  { text: 'London, 1851. Anderssen, as White, plays the King’s Gambit, gives up a pawn, and later castles by hand after Black’s queen check. Black grabs material while White develops with threats.', demo: ['e4', 'e5', 'f4', 'exf4', 'Bc4', 'Qh4+', 'Kf1', 'b5', 'Bxb5', 'Nf6', 'Nf3', 'Qh6', 'd3', 'Nh5', 'Nh4', 'Qg5'] },
-  { text: 'White ignores the rook on g1 and builds an attack with the knight on f5 and the h-pawn.', setup: ['e4', 'e5', 'f4', 'exf4', 'Bc4', 'Qh4+', 'Kf1', 'b5', 'Bxb5', 'Nf6', 'Nf3', 'Qh6', 'd3', 'Nh5', 'Nh4', 'Qg5'], demo: ['Nf5', 'c6', 'g4', 'Nf6', 'Rg1', 'cxb5', 'h4', 'Qg6', 'h5', 'Qg5', 'Qf3', 'Ng8', 'Bxf4', 'Qf6', 'Nc3', 'Bc5'] },
-  { text: 'The famous finish. White gives up both rooks and the queen, and mates with three minor pieces and a pawn.', setup: ['e4', 'e5', 'f4', 'exf4', 'Bc4', 'Qh4+', 'Kf1', 'b5', 'Bxb5', 'Nf6', 'Nf3', 'Qh6', 'd3', 'Nh5', 'Nh4', 'Qg5', 'Nf5', 'c6', 'g4', 'Nf6', 'Rg1', 'cxb5', 'h4', 'Qg6', 'h5', 'Qg5', 'Qf3', 'Ng8', 'Bxf4', 'Qf6', 'Nc3', 'Bc5'], demo: ['Nd5', 'Qxb2', 'Bd6', 'Bxg1', 'e5', 'Qxa1+', 'Ke2', 'Na6', 'Nxg7+', 'Kd8', 'Qf6+', 'Nxf6', 'Be7#'], demoEnds: 'mate' },
- ] },
 ];
 
 // Quick multiple-choice questions shown after each lesson.
@@ -354,8 +343,6 @@ const quizzes: Record<string, Quiz[]> = {
  'op-grunfeld': [{ q: 'In the Grünfeld Black attacks the centre with:', options: ['Pieces and ...Bg7', 'Only pawns', 'The queen', 'The king'], answer: 0, why: 'After White builds a big centre.' }],
  'op-pirc': [{ q: 'The Pirc Defence uses a fianchetto on:', options: ['g7', 'b7', 'e7', 'a7'], answer: 0, why: '...g6 and ...Bg7.' }],
  'op-catalan': [{ q: 'The Catalan features a bishop on:', options: ['g2', 'f4', 'c4', 'g5'], answer: 0, why: 'A fianchetto on the long diagonal.' }],
- 'game-opera': [{ q: 'Morphy won this game by:', options: ['Developing quickly and attacking', 'Waiting', 'Trading queens early', 'Castling kingside only'], answer: 0, why: 'Black fell behind in development.' }],
- 'game-immortal': [{ q: 'In the Immortal Game Anderssen:', options: ['Sacrificed both rooks and the queen', 'Won material quietly', 'Drew', 'Resigned'], answer: 0, why: 'A mating attack with minor pieces.' }],
 };
 
 export const lessons: Lesson[] = [...baseLessons, ...extraLessons].map(l => ({ ...l, quiz: l.quiz ?? quizzes[l.id] }));
