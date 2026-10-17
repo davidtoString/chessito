@@ -25,3 +25,27 @@
 .bot-custom{display:flex;gap:14px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:18px 0;background:var(--raised)}
 .bot-custom.chosen{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent)}
 .bot-custom>div{flex:1}.bot-custom label{display:flex;flex-direction:column;gap:6px;font-size:14px}.bot-custom input[type=range]{width:100%}.bot-custom small{color:var(--muted);font-size:12px}
+
+.bot-tabs{display:flex;gap:6px;margin:16px 0 12px;padding:4px;background:var(--raised);border:1px solid var(--line);border-radius:12px}
+.bot-tabs button{flex:1;padding:9px 6px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted)}
+.bot-tabs button.chosen{background:var(--accent-soft);color:var(--ink);box-shadow:0 0 0 1px var(--accent) inset}
+.bot-grid{margin:0 0 12px}.bot-custom{margin:0 0 12px}
+.bot-picked{display:flex;gap:10px;align-items:center;margin:2px 0 10px}.bot-picked span{font-size:12px;color:var(--muted)}.bot-picked small{display:block;font-size:12px;color:var(--muted);line-height:1.4}
+.modal-footer{position:sticky;bottom:-21px;margin:14px -21px -21px;padding:12px 21px 16px;background:var(--paper);border-top:1px solid var(--line)}
+.modal-footer .bot-note{display:none}
+@media(min-width:701px){.modal-footer{bottom:-28px;margin:14px -28px -28px;padding:14px 28px 20px}.modal-footer .bot-note{display:block}}
+@media(max-width:700px){
+ .bot-grid{grid-template-columns:1fr;gap:6px}
+ .bot-option{flex-direction:row;flex-wrap:wrap;align-items:center;column-gap:12px;padding:8px 12px;min-height:0}
+ .bot-option .bot-symbol{flex:none}.bot-option strong{margin:0;font-size:16px;flex:1 1 40%}
+ .bot-option .bot-level{font-size:12px;color:var(--muted);flex:none}
+ .bot-option small{display:none}.bot-option .bot-check{position:static;margin-left:4px}
+ .modal h2{font-size:20px}.modal>.muted{display:none}
+ .tc-picker>div{flex-wrap:wrap}
+}
+
+@media(max-width:700px){
+ .bot-option{display:grid;grid-template-columns:44px 1fr auto;grid-template-areas:"av name chk" "av level chk";column-gap:12px;row-gap:0;align-items:center;padding:8px 12px}
+ .bot-option .bot-symbol{grid-area:av;display:block}.bot-option .bot-symbol svg,.bot-option .bot-symbol .bot-face{width:44px!important;height:44px!important}
+ .bot-option strong{grid-area:name;flex:none;line-height:1.2}.bot-option .bot-level{grid-area:level}.bot-option .bot-check{grid-area:chk;margin:0}
+}

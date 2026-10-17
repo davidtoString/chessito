@@ -6,7 +6,7 @@ import Board from './board';
 import { ClassBadge } from './review-card';
 import { reviewMove } from '../lib/chess';
 import { classifyGame, winPercent, type Cls } from '../lib/review';
-import { classicTexts, eras, playerTags, type ClassicText, type PlayerTag } from '../lib/classics';
+import { classicTexts, eras, type ClassicText } from '../lib/classics';
 import { loadOpenings, openingFor, type Openings } from '../lib/openings';
 import { play, soundFor } from '../lib/sound';
 
@@ -97,17 +97,15 @@ function Viewer({ g, text, onBack, onAnalyze }: { g: ClassicGame; text?: Classic
 }
 
 export default function Classics({ seen, onSeen, onAnalyze }: { seen: string[]; onSeen: (id: string) => void; onAnalyze: (pgn: string) => void }) {
- const [games, setGames] = useState<ClassicGame[] | null>(null); const [open, setOpen] = useState<string | null>(null); const [error, setError] = useState(''); const [who, setWho] = useState<PlayerTag | ''>('');
+ const [games, setGames] = useState<ClassicGame[] | null>(null); const [open, setOpen] = useState<string | null>(null); const [error, setError] = useState('');
  useEffect(() => { fetch('/data/classics.json').then(r => r.json() as Promise<ClassicGame[]>).then(setGames).catch(() => setError('The classic games could not be loaded.')); }, []);
  const g = games?.find(x => x.id === open);
  if (error) return <p className="danger">{error}</p>; if (!games) return <p className="muted">Loading the classics…</p>;
  if (g) return <Viewer key={g.id} g={g} text={classicTexts[g.id]} onBack={() => setOpen(null)} onAnalyze={onAnalyze} />;
  const all = games.filter(x => classicTexts[x.id]).sort((a, b) => a.date.localeCompare(b.date));
- const listed = who ? all.filter(x => classicTexts[x.id].players?.includes(who)) : all;
  return <div className="classics">
   <p className="muted">Games every player should know: the sacrifices, the endgames and the matches that shaped chess. Replay them move by move with engine ratings and the key moments explained. {seen.filter(id => all.some(x => x.id === id)).length}/{all.length} watched.</p>
-  <div className="library-filters"><div className="chips" role="group" aria-label="Filter by player"><button className={who === '' ? 'chip on' : 'chip'} aria-pressed={who === ''} onClick={() => setWho('')}>All {all.length}</button>{playerTags.map(t => { const n = all.filter(x => classicTexts[x.id].players?.includes(t.id)).length; return n ? <button key={t.id} className={who === t.id ? 'chip on' : 'chip'} aria-pressed={who === t.id} onClick={() => setWho(t.id)}>{t.label} {n}</button> : null; })}</div></div>
-  {eras.map(era => { const list = listed.filter(x => classicTexts[x.id].era === era.id); if (!list.length) return null;
+  {eras.map(era => { const list = all.filter(x => classicTexts[x.id].era === era.id); if (!list.length) return null;
    return <section key={era.id} className="lesson-group"><h2>{era.title}</h2><p className="muted small">{era.blurb}</p>
     <div className="lesson-grid">{list.map(x => { const t = classicTexts[x.id]; return <button key={x.id} className="lesson-tile" onClick={() => { setOpen(x.id); onSeen(x.id); }}>
      <strong>{t.title}{seen.includes(x.id) && <Check size={15} className="tick" aria-label="Watched" />}</strong>
