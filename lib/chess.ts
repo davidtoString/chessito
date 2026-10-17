@@ -2,12 +2,8 @@ import { Chess, type Move } from 'chess.js';
 export type Evaluation = { cp: number; mate?: number; best: string; depth: number };
 export type ReviewMove = { ply: number; san: string; color: string; before: Evaluation; after: Evaluation; loss: number; label: string; advice: string; bestSan: string };
 export type GameRecord = { id: string; pgn: string; title: string; createdAt: string; updatedAt: string; result: string; source: 'played'|'imported'; color: 'w'|'b'; bot: number; engine: string; review: ReviewMove[]; summary?: string; revision?:number; timeControl?:{base:number;inc:number}; clock?:{w:number;b:number}; reviewCount?:number; players?:{white:string;black:string}; outcome?:'won'|'lost'|'drawn'|'unfinished'|'other'; gameDate?:string };
-export const bots = [
- { name: 'Pip', level: 'First steps', description: 'A patient sparring partner. Plenty of room to learn.', skill: 0, chance: .65, symbol: '♟' },
- { name: 'Clover', level: 'Beginner', description: 'Find your footing and look for loose pieces.', skill: 3, chance: .35, symbol: '♞' },
- { name: 'Scout', level: 'Developing', description: 'A little more tactical. Think one move ahead.', skill: 8, chance: .12, symbol: '♝' },
- { name: 'Atlas', level: 'Challenging', description: 'A strong opponent for a proper stretch.', skill: 18, chance: 0, symbol: '♜' },
-];
+export { bots } from './bots.ts';
+import { bots as botList } from './bots.ts';
 export function gameResult(c: Chess): string {
  if(c.isCheckmate()) return c.turn()==='w'?'0-1':'1-0';
  if(c.isDraw()) return '1/2-1/2';
@@ -52,7 +48,7 @@ export function practiceMove(c: Chess, level: number): string {
  }
  const moves=c.moves({verbose:true});
  if(!moves.length)return '';
- if(Math.random()<bots[level].chance) {const m=moves[Math.floor(Math.random()*moves.length)];return m.from+m.to+(m.promotion||'');}
+ if(Math.random()<botList[level].chance) {const m=moves[Math.floor(Math.random()*moves.length)];return m.from+m.to+(m.promotion||'');}
  const color=c.turn()==='w'?1:-1;let best=moves[0],value=-Infinity;
  for(const m of moves){c.move(m);const v=search(c,level>1?2:1,-Infinity,Infinity)*color+Math.random()*8;c.undo();if(v>value){value=v;best=m;}}
  return best.from+best.to+(best.promotion||'');
