@@ -27,7 +27,9 @@ assert.equal((await raw('/register', { method: 'POST', body: { invite: 'nope', u
 
 // 2. the owner signs in (the account created from .env) and holds the old single-user data id
 const o = await login(ownerName, ownerPw); assert.equal(o.r.status, 303);
-assert.match(o.r.headers.get('set-cookie'), /HttpOnly/); assert.match(o.r.headers.get('set-cookie'), /SameSite=Strict/);
+assert.match(o.r.headers.get('set-cookie'), /HttpOnly/); assert.match(o.r.headers.get('set-cookie'), /SameSite=Lax/);
+// Coming back to the login page (back button, old bookmark) while signed in goes to the app instead of showing the form.
+const again = await raw('/login', { cookie: o.cookie }); assert.equal(again.status, 303); assert.equal(again.headers.get('location'), '/');
 const me = await api('/account/me', { cookie: o.cookie }); assert.equal(me.body.role, 'owner'); assert.equal(me.body.id, 'docker-owner'); assert.equal(me.body.signup, 'invite');
 assert.equal((await api('/api/data?view=library', { headers: { Authorization: 'Basic ' + Buffer.from(ownerName + ':' + ownerPw).toString('base64') } })).status, 200, 'Basic auth still works for scripts');
 assert.equal((await login(ownerName, 'wrong-password-here')).r.status, 401);

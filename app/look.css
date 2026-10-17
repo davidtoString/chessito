@@ -84,3 +84,11 @@ h1{font-weight:700}h2{font-weight:650}
 .member-list li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.member-list li.off{opacity:.6}
 .member-list li>span:first-child{display:flex;flex-direction:column}.member-actions{display:flex;gap:10px}
 .danger-zone h3,.secondary.danger,.text-action.danger{color:var(--danger)}
+/* Classic games */
+.classic-card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.classic-card h2{font-size:20px;margin:0}.classic-card h4{margin:6px 0 0;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.classic-story{font-size:15px;line-height:1.6;margin:0}.classic-takeaway{margin:0;padding:10px 12px;border-radius:6px;background:var(--accent-soft);font-size:14px}
+.moments{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.moments button{width:100%;text-align:left;border:0;background:transparent;padding:7px 8px;border-radius:6px;font-size:14px;line-height:1.45;color:var(--ink)}
+.moments li.on button,.moments button:hover{background:var(--raised)}.moments li.on button{outline:2px solid var(--accent)}
+.classic-layout .moves-card .eval-graph{margin:0 16px 8px;width:calc(100% - 32px)}

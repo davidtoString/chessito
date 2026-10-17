@@ -56,7 +56,7 @@ function clientIp(req){
 }
 const secure=()=>publicOrigin?.startsWith('https:');
 const cookieToken=req=>(req.headers.cookie||'').split(';').map(x=>x.trim()).find(x=>x.startsWith('chessito_session='))?.slice(17)||'';
-const sessionCookie=(token,maxAge)=>`chessito_session=${token}; Path=/; HttpOnly; SameSite=Strict${maxAge===null?'':`; Max-Age=${maxAge}`}${secure()?'; Secure':''}`;
+const sessionCookie=(token,maxAge)=>`chessito_session=${token}; Path=/; HttpOnly; SameSite=Lax${maxAge===null?'':`; Max-Age=${maxAge}`}${secure()?'; Secure':''}`;
 async function readText(req,limit){let text='';for await(const chunk of req){text+=chunk.toString();if(text.length>limit)throw new Error('too large');}return text;}
 async function readJson(req,limit=8192){try{return JSON.parse(await readText(req,limit)||'{}');}catch{throw new Error('bad request');}}
 function send(res,status,data,headers={}){res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store',...headers});res.end(JSON.stringify(data));}
@@ -171,7 +171,7 @@ async function handle(req,res){
  const html={'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'};
  const ip=clientIp(req);
  if(req.url==='/login'){
-  if(req.method==='GET'){res.writeHead(200,html);res.end(loginPage());return;}
+  if(req.method==='GET'){if(await currentUser(req)){res.writeHead(303,{Location:'/','Cache-Control':'no-store'});res.end();return;}res.writeHead(200,html);res.end(loginPage());return;}
   if(req.method!=='POST'){res.writeHead(405);res.end();return;}
   let text;try{text=await readText(req,4096);}catch{res.writeHead(413);res.end();return;}
   const f=new URLSearchParams(text);const name=auth.normalizeUsername(f.get('username')||'');
