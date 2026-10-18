@@ -55,12 +55,23 @@ Both use the existing Docker HTTPS proxy and keep app/engine ports unpublished.
 
 ## Play and practice
 
-- Choose Pip, Clover, Scout, or Atlas, playing White or Black. Hints, legal-move highlights, takebacks, promotions, resignation, and board rotation are available. Bot levels are approximate practice difficulty, not calibrated Elo ratings. Games are untimed.
+- Choose from 22 bots (see [Bots](#bots)), playing White or Black. Hints, legal-move highlights, takebacks, promotions, resignation, and board rotation are available. Bot strengths are approximate targets, not measured Elo ratings.
 - Choose browser Stockfish, the lightweight practice engine, Maia, Leela Chess Zero, Arasan, or Fairy-Stockfish. Native engines require the Docker engine service. Untimed games add a one-second pause to every bot reply; timed games use 0.25 seconds.
 - Get move feedback, recommended alternatives, replay, an evaluation chart, and a post-game review. Games and unfinished positions are saved to your private account.
 - Practice **88 original teaching drills, eight per subject**: pawn storms, king-and-pawn endgames, queenless endgames, attack, defense, traps, forks, skewers, discovered attacks, mate in one, and mate in two. Hints and explanations are included; clean completions and assisted completions are tracked separately. Mate-in-two positions are verified against every legal defense and accept alternative forced mates. Other drills demonstrate a selected teaching line rather than every possible defense.
 - On phones, the latest moves, move feedback, hints and suggested alternative appear in a banner above the board. The desktop coach and move-history layout remains available. Games and drills use a sage-and-ivory board and flat, outlined original Staunton pieces.
 - Play 19 longer positions against a chosen bot and engine: three pawn storms, two king-and-pawn endings, eight queenless endgames, three attacks and three defenses. **Practice → Queenless endgames** includes the scattered position with a king, one bishop, one rook, one knight and six pawns on each side, plus rook/pawn, bishop/pawn, knight/pawn, bishop-versus-knight, opposite-color bishop, rook-and-knight, and rook-and-bishop combinations. Attack and defense practice includes king safety, active rooks, coordinated minor pieces and stopping an advanced passed pawn. These games get coaching and enter your saved library. Choose White or Black in the opponent dialog’s playing-color options.
+
+## Bots
+
+The New game window groups the bots into four tabs; the list is in `lib/bots.ts`, the move logic in `lib/bot-move.ts` and `lib/bot-books.ts`.
+
+- **Ladder (12 bots, about 400 to 3000):** Pip, Clover, Maple, Scout, Juniper, Ember, Harbor, Quill, Atlas, Nova, Titan and Maximus. Up to about 1300 a weaker Stockfish search is mixed with random moves; from Ember (1400) the engine's own `UCI_Elo` limiter sets the strength; Maximus is full strength.
+- **With a style:** Gambit Gwen (prefers checks, captures and sacrifices), Walter the Wall (develops, castles, trades when ahead), Sicilian Sam and London Lou (play an opening repertoire from `lib/bot-books.ts`, then hand over to the engine), Oops Ollie (plays well but slips about 14% of the time) and Tick (moves almost instantly and plays worse as its own clock runs down; timed games only). Style bots choose among the engine's top four lines, so they stay near their rating while playing differently.
+- **Handicap:** Pawnless Pete (no f-pawn), Knightless Kai (no queenside knight), Rookless Rae (no queenside rook) and Queenless Quinn (no queen). The bot starts a piece down and plays at 2000 to 3000.
+- **Custom:** a slider from 400 to 3000.
+
+Strengths are approximate: the engine runs in the player's browser with a short thinking time, so real strength varies. Stored games keep only the bot's index, so **never reorder or remove entries in `bots`**; append new bots at the end. Custom bots are stored as 1000 plus their Elo. Native engines (Maia and so on) only know four levels, so every bot maps to the nearest one, and they are available to the owner only.
 
 ## Play, learn and analyze (chess.com-style)
 
@@ -137,7 +148,8 @@ Chessito has real accounts. The owner account is created on first start from `CH
 
 - **Invite-only:** in Settings → Account the owner creates invite links (valid 1/7/30 days, for 1/5/20 people). A friend opens the link, picks a username (3–32 characters) and a password (at least 10), and is signed in. There is no open sign-up. Set `CHESSITO_SIGNUP=closed` to stop new accounts entirely.
 - **Private by default:** every account has its own games, puzzle rating, lesson progress, settings and encrypted AI key. Friends never see each other's data. The owner can see who has joined, disable or remove a member (which deletes their data), and revoke invites. The owner can also read the database on the server, so only invite people you trust.
-- **Members can** change their password, sign out other devices, and delete their own account and data.
+- **One administrator:** only the owner account (`docker-owner`, the user created from `CHESSITO_USERNAME`) can be an admin. A database rule (`drizzle/0004_single_admin.sql`) rejects any other account holding a non-member role and any change to the owner's role, and the gateway checks `auth.isOwner` for every admin action. Invites, the People list, disabling or deleting members are owner-only.
+- **Members can** change their password, sign out other devices, delete their own account and data, and use everything for playing and learning (browser Stockfish, the built-in coach, lessons, puzzles, classic games, appearance and sound). **Members cannot** change settings (AI coach provider and API key), use the AI coach, or use the server engines; those requests return 403 and the Settings page explains that the owner manages them.
 - **Security:** passwords are hashed with scrypt; sessions are random tokens stored server-side (so signing out, changing a password, disabling or deleting an account takes effect immediately); logins are rate-limited per username and per visitor address (the real address is read from Cloudflare's `CF-Connecting-IP` when the request comes through a private proxy); account changes require a matching `Origin`.
 - **Remember me:** the sign-in page has a "Remember me on this device" checkbox (ticked by default). Ticked keeps you signed in for 30 days; unticked is a browser-session login that also expires on the server after 12 hours. Use it unticked on a shared computer.
 - **Email through Resend (optional):** with email on, members can reset a forgotten password by email, the owner can email invites straight to a friend, and anyone can confirm an address in Settings → Account. To turn it on:
@@ -168,6 +180,29 @@ The command prints the backup directory under `/data/backups`. Copy that directo
 
 Gemini, Claude, OpenAI and OpenRouter (any model, e.g. `google/gemini-2.5-flash`) explanations are optional. Enter an exact model ID supported by your API account and use **Test saved connection**. Automatic explanations are off by default. Requested/enabled explanations send game context to that provider and may incur its API charges. Paid provider responses have not been verified with a real account. Browser searches use up to depth 12 / 1.2 seconds per position; they are estimates, not exhaustive analysis. Centipawn-loss statistics cap each move at 1,000 centipawns to avoid mate sentinel scores dominating averages.
 
+## Release and rollback routine
+
+For each change: run `npm run typecheck`, `npm test` and `npm run build:production`, check the screens in a browser (a throwaway container works), then deploy:
+
+```sh
+C="docker compose -p chessito -f compose.vps.yaml -f compose.traefik.yaml"
+$C exec -T chessito node docker/backup.mjs                      # data backup
+docker tag chessito-app:local chessito-app:rollback-<name>      # keep the running image
+$C build chessito && $C up -d --no-deps chessito                # then wait for "healthy"
+```
+
+To roll back, retag the saved image as `chessito-app:local` and run `$C up -d --no-deps chessito`; restore data from `/data/backups` if a migration must be undone. The container restarts for a few seconds during a deploy, so players see a short "server is restarting" message; avoid deploying mid-game.
+
+## How many users, and scaling
+
+The chess engine runs in each player's browser, so players cost the server very little: it handles sign-in, game storage and the optional AI coach calls. The container idles at around 100 MB of memory and almost no CPU. These are estimates, not load-test results:
+
+- Up to a few hundred registered friends: fine as is.
+- About 1,000 registered with a few dozen playing at once: probably fine on a small VPS; load test first.
+- Beyond that, the limits are sign-in (scrypt costs about 50 to 100 ms of CPU per login), the single SQLite writer (every move saves the game), and one container (deploys cause a short outage).
+
+Order of work to scale: raise container limits and add an uptime check, run a load test (k6), move to Postgres and run several app copies behind Traefik (sessions are already server-side), rate-limit the AI coach per user, and queue outgoing email. Native engines run on the server and are owner-only; keep them that way.
+
 ## Development and checks
 
 Use Node 24 (minimum 22.13). `npm install`, then `npm run dev` starts the Sites/Vinext preview, usually at `http://127.0.0.1:5173`. It simulates sign-in locally; do not expose that development server publicly. Production builds have a separate `.next-production` directory, avoiding development type/artifact conflicts.
@@ -181,7 +216,9 @@ npm audit --omit=dev
 
 For a fresh local D1 preview database, build with `npm run build`, then execute each SQL file in `drizzle/` once using the local Wrangler DB binding. Generate a separate ignored `.env.local` encryption secret for local key storage. Local, hosted Sites, and Docker databases are separate; transfer hosted games with PGN export/import. Hosted provider settings must be configured again when moving to Docker.
 
-HTTP integration checks use an isolated test account by default at port 3100: `node tests/production-http.mjs` and `node tests/bulk-http.mjs`. Configure `TEST_ORIGIN`, `TEST_USERNAME`, and `TEST_PASSWORD` for another test deployment. They create/remove only unique test games. Bulk checks temporarily change then restore usernames. `node tests/engines-smoke.mjs` verifies all native engines return legal moves. `node tests/docker-smoke.mjs` checks persistence across restart using a fake provider key; it refuses an account that already has a real saved key. Set `CHESSITO_WSL_DISTRO=ChessitoEngine` when running the latter on Windows with the Engine wrapper.
+`npm test` runs the unit tests (`tests/*.test.ts` and `tests/*.test.mjs`, including bots, classic games, lessons, puzzles, sounds, piece sets, auth, email and the single-admin database rules).
+
+HTTP integration checks run against a container on port 3100 built from this repository (`docker build -t chessito-test .`, then `docker run -d -p 127.0.0.1:3100:3000 -e CHESSITO_USERNAME=test-owner -e CHESSITO_PASSWORD=<test password> -e CHESSITO_PUBLIC_ORIGIN=http://127.0.0.1:3100 chessito-test`). `node tests/accounts-http.mjs` covers invites, sessions, isolation and the owner-only rules; `node tests/library-http.mjs` needs a fresh container because it expects an empty library; `node tests/email-http.mjs` has its own instructions in its header. The older checks also use port 3100: `node tests/production-http.mjs` and `node tests/bulk-http.mjs`. Configure `TEST_ORIGIN`, `TEST_USERNAME`, and `TEST_PASSWORD` for another test deployment. They create/remove only unique test games. Bulk checks temporarily change then restore usernames. `node tests/engines-smoke.mjs` verifies all native engines return legal moves. `node tests/docker-smoke.mjs` checks persistence across restart using a fake provider key; it refuses an account that already has a real saved key. Set `CHESSITO_WSL_DISTRO=ChessitoEngine` when running the latter on Windows with the Engine wrapper.
 
 ## Engine source and licenses
 
