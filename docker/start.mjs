@@ -102,7 +102,7 @@ const badInvitePage=()=>shell('Invite',`<h1>This invite does not work</h1><p>It 
 
 // ── account API (JSON, signed-in users) ────────────────────────────────────
 async function account(req,res,user){
- const url=new URL(req.url,'http://x');const route=url.pathname;const owner=user.role==='owner';
+ const url=new URL(req.url,'http://x');const route=url.pathname;const owner=auth.isOwner(user);
  try{
   if(route==='/account/me'&&req.method==='GET')return send(res,200,{...auth.publicUser(user),signup,origin:originOf(req),email:{configured:!!mail,address:user.email,verified:!!user.email_verified}});
   if(route==='/account/email'&&req.method==='POST'){
@@ -231,6 +231,12 @@ async function handle(req,res){
  if(!['GET','HEAD','OPTIONS'].includes(req.method)&&!req.headers.authorization&&!req.headers.origin){res.writeHead(403);res.end('An Origin header is required.');return;}
  if(req.url==='/logout'&&req.method==='POST'){auth.revokeSession(db,cookieToken(req));res.writeHead(303,{Location:'/login','Cache-Control':'no-store','Set-Cookie':sessionCookie('',0)});res.end();return;}
  if(req.url?.startsWith('/account/')){await account(req,res,user);return;}
+ const ownerOnly=(msg)=>{res.writeHead(403,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify({error:msg}));};
+ if(!auth.isOwner(user)){
+  if(req.url==='/api/engines'&&req.method==='GET'){send(res,200,{engines:[]});return;}
+  if(req.url==='/api/engines/move'){ownerOnly('Server engines are managed by the owner. Browser Stockfish is available to everyone.');return;}
+  if(req.url==='/api/coach'){ownerOnly('The AI coach is configured by the owner.');return;}
+ }
  if(req.method==='POST'&&['/api/coach','/api/engines/move'].includes(req.url)){
   const key=user.id+':'+req.url;let counter=usage.get(key);if(!counter||Date.now()-counter.time>60000){counter={time:Date.now(),count:0};usage.set(key,counter);}if(++counter.count>(req.url==='/api/coach'?12:60)){res.writeHead(429,{'Content-Type':'application/json','Retry-After':'60'});res.end(JSON.stringify({error:'Too many coaching or engine requests. Try again in a minute.'}));return;}
  }
@@ -257,6 +263,7 @@ async function handle(req,res){
  if(headers.origin)headers.origin=`http://localhost:${internalPort}`;
  try{
   const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>1500000){res.writeHead(413);res.end('Request too large.');return;}chunks.push(chunk);}
+  if(req.method==='POST'&&req.url.split('?')[0]==='/api/data'&&!auth.isOwner(user)){let t='';try{t=JSON.parse(Buffer.concat(chunks).toString('utf8'))?.type;}catch{}if(t==='settings'){send(res,403,{error:'Only the owner can change settings.'});return;}}
   const response=await fetch(`${internalOrigin}${req.url}`,{method:req.method,headers,body:chunks.length?Buffer.concat(chunks):undefined,redirect:'manual',signal:AbortSignal.timeout(60000)});
   const responseHeaders={};for(const [name,value] of response.headers)if(!['content-encoding','content-length','transfer-encoding','connection'].includes(name))responseHeaders[name]=value;
   responseHeaders['X-Content-Type-Options']='nosniff';responseHeaders['Referrer-Policy']='same-origin';

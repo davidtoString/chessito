@@ -55,8 +55,8 @@ assert.equal((await api('/api/data?id=' + gid, { cookie: fc })).status, 404, 'th
 assert.equal((await api('/api/data', { method: 'POST', cookie: fc, body: game(gid, 'Friend game') })).status, 200, 'no id collision across accounts');
 assert.equal((await api('/api/data?id=' + gid, { cookie: o.cookie })).body.game.title, 'Owner game');
 assert.equal((await api('/api/data?id=' + gid, { cookie: fc })).body.game.title, 'Friend game');
-assert.equal((await api('/api/data', { method: 'POST', cookie: fc, body: { type: 'settings', settings: { provider: 'none', model: '', autoCoach: true } } })).status, 200);
-assert.equal((await api('/api/data?view=library', { cookie: o.cookie })).body.settings.autoCoach, false, 'settings are per account');
+assert.equal((await api('/api/data', { method: 'POST', cookie: fc, body: { type: 'settings', settings: { provider: 'none', model: '', autoCoach: true } } })).status, 403, 'members cannot change settings');
+assert.equal((await api('/api/data?view=library', { cookie: o.cookie })).body.settings.autoCoach, false, 'the owner’s settings are untouched');
 const spoof = await api('/api/data?view=library', { cookie: fc, headers: { 'oai-authenticated-user-id': 'docker-owner', 'oai-authenticated-user-email': 'owner@chessito.local' } });
 assert.ok(!spoof.body.games.some(g => g.title === 'Owner game'), 'a client cannot spoof the identity header');
 assert.equal((await api('/api/data', { method: 'DELETE', cookie: fc, body: { id: gid } })).status, 200);
@@ -88,6 +88,19 @@ assert.equal((await login(friend, friendPw)).r.status, 401); const f2 = await lo
 
 // 8. sign out everywhere else
 const f3 = (await login(friend, newPw)).cookie;
+// Only the owner is an administrator and can change settings: members get no config, server engines or AI coach.
+{
+ const m = (await api('/account/me', { cookie: f3 })).body; assert.equal(m.role, 'member');
+ const set = await api('/api/data', { method: 'POST', cookie: f3, body: { type: 'settings', settings: { provider: 'openai', model: 'gpt-x', apiKey: 'sk-test-not-real', autoCoach: true } } });
+ assert.equal(set.status, 403, 'members cannot change settings'); assert.match(set.body.error, /owner/i);
+ const prefs = (await api('/api/data?view=library', { cookie: f3 })).body; assert.ok(!prefs.settings || prefs.settings.provider === 'none', 'nothing was saved for the member');
+ assert.equal((await api('/api/engines', { cookie: f3 })).body.engines.length, 0, 'no server engines for members');
+ assert.equal((await api('/api/engines/move', { method: 'POST', cookie: f3, body: { engine: 'maia', fen: 'x', level: 0 } })).status, 403);
+ assert.equal((await api('/api/coach', { method: 'POST', cookie: f3, body: {} })).status, 403);
+ for (const path of ['/account/invites', '/account/members']) assert.equal((await api(path, { cookie: f3 })).status, 403, path + ' is owner-only');
+ assert.equal((await api('/account/members', { method: 'POST', cookie: f3, body: { id: 'docker-owner', action: 'disable' } })).status, 403);
+ assert.equal((await api('/api/data', { method: 'POST', cookie: o.cookie, body: { type: 'settings', settings: { provider: 'none', model: '', autoCoach: false } } })).status, 200, 'the owner still can');
+}
 assert.equal((await api('/account/signout-all', { method: 'POST', cookie: f2.cookie, body: {} })).status, 200);
 assert.equal((await api('/account/me', { cookie: f3 })).status, 401); assert.equal((await api('/account/me', { cookie: f2.cookie })).status, 200);
 

@@ -45,6 +45,8 @@ export async function burnTime(password) { dummy ||= await hashPassword('not-a-r
 
 // ── users ──────────────────────────────────────────────────────────────────
 const now = () => new Date().toISOString();
+// The owner (david) is the only administrator. Everyone else is a member, whatever the database says.
+export const isOwner = u => !!u && u.id === OWNER_ID && u.role === 'owner';
 export const publicUser = u => u && ({ id: u.id, username: u.username, displayName: u.display_name, role: u.role });
 export function userCount(db) { return db.prepare('SELECT count(*) AS n FROM users').get().n; }
 export function getUser(db, id) { return db.prepare('SELECT * FROM users WHERE id=?').get(id); }

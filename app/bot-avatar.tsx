@@ -79,6 +79,26 @@ const faces: Record<number, { bg: string; body: React.ReactNode }> = {
  16: { bg: '#e8f6e8', body: <>
   <path d="M14 54V30c0-10 8-18 18-18s18 8 18 18v24l-6-5-6 5-6-5-6 5-6-5z" fill="#fff" stroke="#aab4c0" strokeWidth="2"/>
   <circle cx="26" cy="31" r="3" fill="#1d1d1d"/><circle cx="38" cy="29" r="4.2" fill="#fff" stroke="#1d1d1d" strokeWidth="1.6"/><circle cx="38.6" cy="29.6" r="1.6" fill="#1d1d1d"/><path d="M26 41c4-3 8-1 12 1" stroke="#1d1d1d" strokeWidth="2.2" fill="none" strokeLinecap="round"/></> },
+
+ // Tick: a stopwatch with legs-up energy
+ 17: { bg: '#fff0d6', body: <>
+  <rect x="27" y="6" width="10" height="6" rx="2" fill="#7a5a2b"/><circle cx="32" cy="36" r="21" fill="#fff" stroke="#e08a1e" strokeWidth="4"/><path d="M32 36V22M32 36l9 5" stroke="#243044" strokeWidth="3" strokeLinecap="round"/><circle cx="32" cy="36" r="3" fill="#d9534f"/>
+  <path d="M46 14l4-4" stroke="#e08a1e" strokeWidth="4" strokeLinecap="round"/><circle cx="24" cy="46" r="1.6" fill="#243044"/><circle cx="40" cy="46" r="1.6" fill="#243044"/></> },
+ // Pawnless Pete: a pawn-shaped friend
+ 18: { bg: '#e6efe6', body: <>
+  <circle cx="32" cy="18" r="9" fill="#9bb89b"/><path d="M26 28h12l4 18H22z" fill="#9bb89b"/><rect x="16" y="46" width="32" height="8" rx="4" fill="#7c987c"/>
+  <circle cx="29" cy="17" r="1.8" fill="#1d2b1d"/><circle cx="35" cy="17" r="1.8" fill="#1d2b1d"/><path d="M29 22c2 2 4 2 6 0" stroke="#1d2b1d" strokeWidth="1.6" fill="none" strokeLinecap="round"/></> },
+ // Knightless Kai: a knight with a jaunty grin
+ 19: { bg: '#dfe9f7', body: <>
+  <path d="M18 54c0-14 2-22 10-28l-4-8 8 3c10 0 18 8 18 22v11z" fill="#5d7fb3"/><circle cx="34" cy="26" r="2.4" fill="#fff"/><circle cx="34.6" cy="26.4" r="1.2" fill="#1a2538"/><path d="M26 36c3 2 6 2 9 0" stroke="#1a2538" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M40 20l6-6 2 8z" fill="#3f5f94"/></> },
+ // Rookless Rae: a tower with a friendly face
+ 20: { bg: '#f3e3ef', body: <>
+  <path d="M16 14h7v6h6v-6h6v6h6v-6h7v14H16zM20 28h24l3 22H17z" fill="#b772a6"/><rect x="14" y="50" width="36" height="7" rx="3.5" fill="#9a5a8b"/>
+  <circle cx="27" cy="38" r="2.4" fill="#2a1226"/><circle cx="37" cy="38" r="2.4" fill="#2a1226"/><path d="M27 44c3 3 7 3 10 0" stroke="#2a1226" strokeWidth="2" fill="none" strokeLinecap="round"/></> },
+ // Queenless Quinn: a crown with a missing-queen wink
+ 21: { bg: '#ffe6e6', body: <>
+  <path d="M12 40l4-22 10 12 6-16 6 16 10-12 4 22z" fill="#e0b13a"/><rect x="12" y="40" width="40" height="10" rx="3" fill="#c9972a"/><circle cx="16" cy="18" r="3" fill="#d9534f"/><circle cx="32" cy="14" r="3" fill="#d9534f"/><circle cx="48" cy="18" r="3" fill="#d9534f"/>
+  <circle cx="26" cy="45" r="1.8" fill="#3a2a0c"/><path d="M36 45h6" stroke="#3a2a0c" strokeWidth="2" strokeLinecap="round"/></> },
  // Custom bots: a dial
  1000: { bg: '#e3e8ef', body: <>
   <circle cx="32" cy="34" r="21" fill="#fff" stroke="#5b6b82" strokeWidth="3"/><path d="M16 42a18 18 0 0 1 32 0" stroke="#aab4c0" strokeWidth="4" fill="none" strokeLinecap="round"/><path d="M32 34l10-10" stroke="#d9534f" strokeWidth="3.4" strokeLinecap="round"/><circle cx="32" cy="34" r="3.6" fill="#243044"/></> },

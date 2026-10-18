@@ -21,7 +21,7 @@ test('the ladder climbs from about 400 to 3000 with no big jumps', () => {
  assert.equal(elos[0], 400); assert.equal(elos.at(-1), 3000);
  for (let i = 1; i < elos.length; i++) assert.ok(elos[i] - elos[i - 1] <= 500, `gap before ${ladder[i].name}`);
  assert.ok(ladder.length >= 12);
- for (const b of styleBots) assert.ok(b.style, b.name);
+ for (const b of styleBots) assert.ok(b.style || b.blitz, b.name);
 });
 
 test('custom bots round-trip through the stored index and map to a native engine level', () => {
@@ -99,4 +99,22 @@ test('botMove follows the book, then asks the engine at the right strength', asy
  assert.ok(new Chess().moves({ verbose: true }).some(m => m.from + m.to === random.slice(0, 4)));
  const mated = new Chess('7k/5Q2/6K1/8/8/8/8/8 b - - 0 1'); assert.equal(mated.isCheckmate() || mated.isStalemate(), true);
  assert.equal(await botMove(engine, mated.fen(), [], getBot(7), () => 0.5), '', 'no legal moves');
+});
+
+test('handicap bots start a piece down, and Tick plays worse as its clock runs low', async () => {
+ const { oddsFen, oddsBots } = await import('../lib/bots.ts');
+ const { blitzSettings } = await import('../lib/bot-move.ts');
+ assert.equal(oddsBots.length, 4);
+ const count = (fen: string, ch: string) => fen.split(' ')[0].split('').filter(c => c === ch).length;
+ const botFen = (o: 'pawn' | 'knight' | 'rook' | 'queen', c: 'w' | 'b') => oddsFen(o, c);
+ const q = botFen('queen', 'b'); assert.equal(count(q, 'q'), 0); assert.equal(count(q, 'Q'), 1); assert.equal(count(q, 'p'), 8);
+ const n = botFen('knight', 'w'); assert.equal(count(n, 'N'), 1); assert.equal(count(n, 'n'), 2);
+ const r = botFen('rook', 'b'); assert.equal(count(r, 'r'), 1); assert.ok(!r.split(' ')[2].includes('q') && r.split(' ')[2].includes('k') && r.split(' ')[2].includes('KQ'), 'no queenside castling for the side without that rook');
+ const p = botFen('pawn', 'w'); assert.equal(count(p, 'P'), 7); assert.equal(count(p, 'p'), 8);
+ for (const o of ['pawn', 'knight', 'rook', 'queen'] as const) for (const c of ['w', 'b'] as const) { const f = oddsFen(o, c); assert.doesNotThrow(() => new Chess(f), `${o}/${c}`); assert.equal(f.split(' ')[1], 'w', 'white still moves first'); assert.ok(new Chess(f).moves().length > 0); }
+ assert.deepEqual(blitzSettings(1800, null), { elo: 1800, ms: 250 });
+ assert.equal(blitzSettings(1800, 120000).elo, 1800);
+ assert.ok(blitzSettings(1800, 30000).elo < 1800 && blitzSettings(1800, 8000).elo < blitzSettings(1800, 30000).elo);
+ assert.equal(blitzSettings(1500, 2000).elo, 1320, 'never below the engine’s floor');
+ assert.ok(blitzSettings(1800, 1000).ms >= 60 && blitzSettings(1800, 300000).ms <= 900);
 });

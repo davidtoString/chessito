@@ -44,6 +44,7 @@ export async function POST(req:Request){try{const user=await identity(req);const
  if(result.meta.changes!==1)return json({error:'This game changed on another device. Reload your library before continuing.',conflict:true},409);
  return json({ok:true,revision:data.revision});
  }if(b.type==='settings'){
+ if(user!=='docker-owner')return json({error:'Only the owner can change settings.'},403);
  const s=b.settings;if(!s||!['none','gemini','claude','openai','openrouter'].includes(s.provider)||typeof s.model!=='string'||s.model.length>120||!/^[-\w./:]*$/.test(s.model))return json({error:'Invalid provider or model ID.'},400);
  const [old]=await db.select().from(preferences).where(eq(preferences.userId,user));const prior=old?JSON.parse(old.data):{};let encryptedKey=prior.provider===s.provider?old?.encryptedKey||null:null;
  if(s.clearKey||s.provider==='none')encryptedKey=null;

@@ -54,7 +54,8 @@ export function chooseStyled(fen: string, lines: EngineLine[], style: Style, ply
 
 // The move a bot plays: its opening book first, then the engine at the bot's strength.
 // `history` is the SAN of every move played so far (the FEN alone does not carry it).
-export async function botMove(engine: Thinker, fen: string, history: string[], bot: Bot, rng: () => number = Math.random): Promise<string> {
+export type Clocks = { bot: number | null };   // the bot's remaining time in ms, or null when the game is untimed
+export async function botMove(engine: Thinker, fen: string, history: string[], bot: Bot, rng: () => number = Math.random, clocks: Clocks = { bot: null }): Promise<string> {
  const g = new Chess(fen);
  const legal = g.moves({ verbose: true }); if (!legal.length) return '';
  const san = bookMove(bot.book, history, rng);
@@ -62,7 +63,16 @@ export async function botMove(engine: Thinker, fen: string, history: string[], b
  if (bot.mode === 'legacy' && rng() < bot.chance) return uciOf(legal[Math.floor(rng() * legal.length)]);
  if (bot.mode === 'legacy') return (await engine.think(fen, { skill: bot.skill, depth: 10, ms: 1200 })).best;
  if (bot.mode === 'full') return (await engine.think(fen, { skill: 20, depth: 14, ms: 1500 })).best;
+ if (bot.blitz) { const o = blitzSettings(bot.elo, clocks.bot); return (await engine.think(fen, { elo: o.elo, ms: o.ms })).best; }
  if (bot.mode === 'elo') return (await engine.think(fen, { elo: bot.elo, ms: 900 })).best;
  const r = await engine.think(fen, { skill: 20, multipv: 4, depth: bot.style === 'slippy' ? 10 : 6, ms: 900 });
  return chooseStyled(fen, r.lines, bot.style ?? 'balanced', history.length, rng) || r.best;
+}
+
+// Tick plays almost instantly, and the less time it has, the weaker it plays (down to the engine's 1320 floor).
+export function blitzSettings(elo: number, clockMs: number | null): { elo: number; ms: number } {
+ if (clockMs === null) return { elo, ms: 250 };
+ const s = clockMs / 1000;
+ const drop = s < 10 ? 480 : s < 20 ? 300 : s < 40 ? 150 : 0;
+ return { elo: Math.max(1320, elo - drop), ms: Math.round(Math.min(900, Math.max(60, clockMs * 0.015))) };
 }

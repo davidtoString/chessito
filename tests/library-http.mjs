@@ -36,7 +36,7 @@ assert.deepEqual((await get('?view=months&source=played')).months, [{ month: '20
 assert.deepEqual((await get('?view=months&source=imported')).months, [{ month: '2026.09', count: 1 }, { month: '2026.07', count: 1 }]);
 const newest = (await get('?view=library&source=played&order=newest')).games.map(x => x.gameDate); assert.deepEqual(newest, [...newest].sort().reverse(), 'sorted by month, newest first');
 // junk values are ignored, never an error or injection
-assert.equal((await get("?view=library&source=played'--&bot=9")).total, 8);
+assert.equal((await get("?view=library&source=played'--&bot=123")).total, 8);
 assert.equal((await get('?view=library&bot=abc')).total, 8);
 for (const x of games) await fetch(origin + '/api/data', { method: 'DELETE', headers, body: JSON.stringify({ id: x.id }) });
 console.log('PASS library: bots only, one bot, imported, combined with result, month and sort; counts and months follow the opponent filter');
